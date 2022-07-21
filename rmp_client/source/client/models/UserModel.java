@@ -1,7 +1,7 @@
-package com.example.rmp_client.model;
+package client.models;
 
 
-import com.example.rmp_client.dto.UserCredentials;
+import client.entities.UserCredentials;
 
 public class UserModel {
 

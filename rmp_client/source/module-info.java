@@ -1,4 +1,4 @@
-module com.example.rmp_client {
+module client {
     requires javafx.controls;
     requires javafx.fxml;
 
@@ -7,6 +7,7 @@ module com.example.rmp_client {
     requires org.kordamp.ikonli.javafx;
     requires org.kordamp.bootstrapfx.core;
 
-    opens com.example.rmp_client to javafx.fxml;
-    exports com.example.rmp_client;
+    opens client to javafx.fxml;
+    opens client.views to javafx.fxml;
+    exports client;
 }

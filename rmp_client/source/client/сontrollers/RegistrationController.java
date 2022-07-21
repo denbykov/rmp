@@ -1,6 +1,6 @@
-package com.example.rmp_client.сontroller;
+package client.сontrollers;
 
-import com.example.rmp_client.dto.UserCredentials;
+import client.entities.UserCredentials;
 
 public class RegistrationController {
 

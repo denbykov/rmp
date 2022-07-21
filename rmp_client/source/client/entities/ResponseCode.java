@@ -1,4 +1,4 @@
-package com.example.rmp_client.dto;
+package client.entities;
 
 public enum ResponseCode {
 
