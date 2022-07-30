@@ -142,7 +142,7 @@ class FileManager:
         error, file = self.data_accessor.get_file(file_id)
 
         if error or file.state.name != FileStateName.READY:
-            return error, None
+            return DataError(False, ErrorCodes.NO_SUCH_RESOURCE), None
 
         with open(file.path, "rb") as file_data:
             data = file_data.read()
