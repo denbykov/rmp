@@ -6,9 +6,9 @@ from source.Presentation.Parsers.FileURLParser import *
 from source.Presentation.Formatters.File.FileFormatter import *
 
 
-class FileHandler(AuthorizedHandler):
+class FileManagementHandler(AuthorizedHandler):
     def __init__(self, data_accessor, secret: str):
-        super(FileHandler, self).__init__(data_accessor, secret)
+        super(FileManagementHandler, self).__init__(data_accessor, secret)
         self.controller: FileController = FileController(data_accessor)
 
     def authorized_handle(self, request: AuthorizedHTTPRequest) -> HTTPResponse:

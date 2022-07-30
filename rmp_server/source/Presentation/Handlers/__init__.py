@@ -1,3 +1,3 @@
 __all__ = \
     ["AuthorizedHandler", "BaseHandler", "EchoHandler", "LoginHandler",
-     "NotFoundHandler", "UserHandler", "FileHandler"]
+     "NotFoundHandler", "UserHandler", "FileManagementHandler"]

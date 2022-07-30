@@ -30,6 +30,7 @@ class HTTPHandlerFactory(IHTTPHandlerFactory):
         if path == '/login':
             return LoginHandler.LoginHandler(data_accessor, self.jwt_secret)
         if path.startswith('/file-management/file'):
-            return FileHandler.FileHandler(data_accessor, self.jwt_secret)
+            return FileManagementHandler.FileManagementHandler(
+                data_accessor, self.jwt_secret)
 
         return NotFoundHandler.NotFoundHandler(data_accessor)
