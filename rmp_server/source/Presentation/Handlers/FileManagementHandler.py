@@ -23,6 +23,9 @@ class FileManagementHandler(AuthorizedHandler):
         if path == "" and request.method == HTTPMethod.POST:
             return self._download_file(request)
 
+        if path == "find-by-url" and request.method == HTTPMethod.POST:
+            return self._find_file(request)
+
         if path != "":
             try:
                 file_id = int(path)
@@ -72,3 +75,19 @@ class FileManagementHandler(AuthorizedHandler):
             return self.handle_api_error(result)
 
         return HTTPResponse(HTTPResponseCode.OK, None, audio=result)
+
+    def _find_file(self, request: AuthorizedHTTPRequest) -> HTTPResponse:
+        try:
+            url = FileURLParser.parse(request.json_payload)
+        except KeyError:
+            return self.handle_api_error(
+                APIError(
+                    ErrorCodes.BAD_ARGUMENT,
+                    "Failed to parse request body"))
+
+        result = self.controller.find_file(url)
+
+        if isinstance(result, APIError):
+            return self.handle_api_error(result)
+
+        return HTTPResponse(HTTPResponseCode.OK, FileFormatter.format(result))

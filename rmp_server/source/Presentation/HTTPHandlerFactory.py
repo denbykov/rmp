@@ -29,7 +29,7 @@ class HTTPHandlerFactory(IHTTPHandlerFactory):
             return UserHandler.UserHandler(data_accessor, self.jwt_secret)
         if path == '/login':
             return LoginHandler.LoginHandler(data_accessor, self.jwt_secret)
-        if path.startswith('/file-management/file'):
+        if path.startswith('/file-management/files'):
             return FileManagementHandler.FileManagementHandler(
                 data_accessor, self.jwt_secret)
 

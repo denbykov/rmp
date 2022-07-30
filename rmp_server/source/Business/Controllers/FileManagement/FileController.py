@@ -9,6 +9,7 @@ from source.Business.Entities.APIError import *
 
 class FileController:
     def __init__(self, data_accessor: IDataAccessor):
+        self.data_accessor: IDataAccessor = data_accessor
         self.file_manager = fm.FileManager(data_accessor)
 
     def download_file(self, url: str) -> Union[APIError, File]:
@@ -48,3 +49,15 @@ class FileController:
             return APIError(error.code, "Bad argument")
 
         return data
+
+    def find_file(self, url: str) -> Union[APIError, File]:
+        error, file = self.data_accessor.get_file_by_url(url)
+
+        if error and error.code == ErrorCodes.NO_SUCH_RESOURCE:
+            return APIError(error.code, "No such file")
+        if error and error.code == ErrorCodes.UNKNOWN_ERROR:
+            return APIError(error.code, "Unknown error")
+        if error and error.code == ErrorCodes.BAD_ARGUMENT:
+            return APIError(error.code, "Bad argument")
+
+        return file
