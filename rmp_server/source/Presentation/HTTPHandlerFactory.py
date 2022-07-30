@@ -1,11 +1,10 @@
 import logging
 import sqlite3
 
-from pathlib import *
-from source.Core.HTTPHandlerAdapter import IHTTPHandlerFactory, IHTTPRequestHandler
+from source.Core.HTTPHandlerAdapter import IHTTPHandlerFactory
+from source.Core.HTTPHandlerAdapter import IHTTPRequestHandler
 
 from .Handlers import *
-from .Handlers.FileManagement.FileHandler import *
 
 import source.LoggerNames as LoggerNames
 from source.Data.DataAccerssor import DataAccessor
@@ -31,6 +30,6 @@ class HTTPHandlerFactory(IHTTPHandlerFactory):
         if path == '/login':
             return LoginHandler.LoginHandler(data_accessor, self.jwt_secret)
         if path.startswith('/file-management/file'):
-            return FileHandler(data_accessor, self.jwt_secret)
+            return FileHandler.FileHandler(data_accessor, self.jwt_secret)
 
         return NotFoundHandler.NotFoundHandler(data_accessor)

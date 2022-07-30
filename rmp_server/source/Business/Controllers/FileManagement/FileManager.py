@@ -137,3 +137,14 @@ class FileManager:
             FileManager.file_dir / \
             FileManager.audio_dir / \
             f"{info.source.value}_{uid}.mp3"
+
+    def get_file(self, file_id: int) -> Tuple[DataError, bytes]:
+        error, file = self.data_accessor.get_file(file_id)
+
+        if error or file.state.name != FileStateName.READY:
+            return error, None
+
+        with open(file.path, "rb") as file_data:
+            data = file_data.read()
+
+        return error, data

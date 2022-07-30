@@ -13,3 +13,9 @@ class HTTPResponseCode(Enum):
 class HTTPResponse:
     response_code: HTTPResponseCode
     json_payload: Optional[Dict[str, Any]]
+    audio: Optional[bytes]
+
+    def __init__(self, response_code, json_payload, audio=None):
+        self.response_code = response_code
+        self.json_payload = json_payload
+        self.audio = audio

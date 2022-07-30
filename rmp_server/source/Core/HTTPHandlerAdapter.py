@@ -78,24 +78,44 @@ class HTTPHandlerAdapter(BaseHTTPRequestHandler):
 
     def send_http_response(self, response: HTTPResponse) -> None:
         if response.json_payload:
-            try:
-                self.send_response(response.response_code.value)
-                self.send_header('Content-Type', 'application/json')
-                self.end_headers()
-
-                body = json.dumps(response.json_payload, indent=4)
-                self.wfile.write(body.encode())
-            except Exception as ex:
-                self.logger.error(f"Unhandled exception: {type(ex)}: {ex}")
-                self.send_response_only(HTTPResponseCode.INTERNAL_ERROR.value)
-                self.end_headers()
-
-                if self.rethrow_exceptions:
-                    raise
-
-        if response.json_payload is None:
+            self.send_json_payload(
+                response.json_payload, response.response_code.value)
+        elif response.audio:
+            self.send_file(
+                response.audio, response.response_code.value, "audio", "mp3")
+        else:
             self.send_response_only(response.response_code.value)
             self.end_headers()
+
+    def send_json_payload(self, payload, code):
+        try:
+            self.send_response(code)
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+
+            body = json.dumps(payload, indent=4)
+            self.wfile.write(body.encode())
+        except Exception as ex:
+            self.logger.error(f"Unhandled exception: {type(ex)}: {ex}")
+            self.send_response_only(HTTPResponseCode.INTERNAL_ERROR.value)
+            self.end_headers()
+
+            if self.rethrow_exceptions:
+                raise
+
+    def send_file(self, payload, code, mime_type, extension):
+        try:
+            self.send_response(code)
+            self.send_header('Content-Type', f'{mime_type}/{extension}')
+            self.end_headers()
+            self.wfile.write(payload)
+        except Exception as ex:
+            self.logger.error(f"Unhandled exception: {type(ex)}: {ex}")
+            self.send_response_only(HTTPResponseCode.INTERNAL_ERROR.value)
+            self.end_headers()
+
+            if self.rethrow_exceptions:
+                raise
 
     def handle_request(self):
         request = self.make_http_request()

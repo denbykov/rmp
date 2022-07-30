@@ -36,3 +36,15 @@ class FileController:
             return APIError(error.code, "Bad argument")
 
         return file_state
+
+    def get_file(self, file_id: int) -> Union[APIError, bytes]:
+        error, data = self.file_manager.get_file(file_id)
+
+        if error and error.code == ErrorCodes.NO_SUCH_RESOURCE:
+            return APIError(error.code, "No such file")
+        if error and error.code == ErrorCodes.UNKNOWN_ERROR:
+            return APIError(error.code, "Unknown error")
+        if error and error.code == ErrorCodes.BAD_ARGUMENT:
+            return APIError(error.code, "Bad argument")
+
+        return data

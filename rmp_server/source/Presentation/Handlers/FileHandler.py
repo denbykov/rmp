@@ -1,4 +1,4 @@
-from source.Presentation.Handlers.AuthorizedHandler import *
+from .AuthorizedHandler import *
 
 from source.Business.Controllers.FileManagement.FileController import *
 
@@ -29,6 +29,8 @@ class FileHandler(AuthorizedHandler):
                 path = splitted_path[4]
                 if path == "state" and request.method == HTTPMethod.GET:
                     return self._get_file_state(file_id)
+                if path == "data" and request.method == HTTPMethod.GET:
+                    return self._get_file(file_id)
             except IndexError:
                 pass
 
@@ -61,3 +63,12 @@ class FileHandler(AuthorizedHandler):
             return self.handle_api_error(result)
 
         return HTTPResponse(HTTPResponseCode.OK, FileStateFormatter.format(result))
+
+    def _get_file(self, file_id: int)\
+            -> HTTPResponse:
+        result = self.controller.get_file(file_id)
+
+        if isinstance(result, APIError):
+            return self.handle_api_error(result)
+
+        return HTTPResponse(HTTPResponseCode.OK, None, audio=result)
