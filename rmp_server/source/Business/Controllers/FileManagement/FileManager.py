@@ -98,13 +98,17 @@ class FileManager:
             return self.get_state_from_progress(progress, file_id)
 
         error, file = self.data_accessor.get_file(file_id)
-
+        if error:
+            return error, None
         return error, file.state
 
     def get_state_from_progress(self, progress: DownloadingProgress, file_id: int)\
             -> Tuple[DataError, FileState]:
         error = DataError(False, ErrorCodes.UNKNOWN_ERROR)
         state: FileState = FileState(0, progress.state, "")
+
+        if progress.state in self.db_states_id_mapping:
+            state.id = self.db_states_id_mapping[progress.state]
 
         if progress.state == FileStateName.LOADING:
             state.description = f"{progress.percent}|{progress.speed}"

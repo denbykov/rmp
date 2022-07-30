@@ -26,3 +26,7 @@ class DataAccessorMock(IDataAccessor):
     def get_files_by_state(self, states: Tuple[FileStateName, ...]) \
             -> Tuple[DataError, List[File]]:
         pass
+
+    def update_file_state(self, file_id: int, state: FileState)\
+            -> Tuple[DataError, None]:
+        pass

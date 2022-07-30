@@ -10,3 +10,6 @@ class DownloadingManagerMock(IDownloadingManager):
 
     def get_progress(self, file: File) -> Optional[DownloadingProgress]:
         pass
+
+    def del_progress(self, file_id: int):
+        pass

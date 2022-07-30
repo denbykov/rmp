@@ -24,7 +24,8 @@ class IDataAccessor(ABC):
         pass
 
     @abstractmethod
-    def update_file_state(self, file_id: int, state: FileState) -> Tuple[DataError, None]:
+    def update_file_state(self, file_id: int, state: FileState)\
+            -> Tuple[DataError, None]:
         pass
 
     @abstractmethod
