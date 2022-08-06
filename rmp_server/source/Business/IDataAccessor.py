@@ -44,7 +44,7 @@ class IDataAccessor(ABC):
         pass
 
     @abstractmethod
-    def get_tag_sources(self) -> Tuple[DataError, Dict[TagSource, int]]:
+    def get_tag_sources(self) -> Tuple[DataError, Dict[TagSourceName, int]]:
         pass
 
     @abstractmethod

@@ -39,7 +39,7 @@ class DataAccessor(IDataAccessor):
         return self.file_repository.get_files_by_state(states, self.con)
 
     # tag repo
-    def get_tag_sources(self) -> Tuple[DataError, Dict[TagSource, int]]:
+    def get_tag_sources(self) -> Tuple[DataError, Dict[TagSourceName, int]]:
         return self.tag_repository.get_tag_sources(self.con)
 
     def get_tag_states(self) -> Tuple[DataError, Dict[TagStateName, int]]:

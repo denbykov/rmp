@@ -14,7 +14,7 @@ class TagRepository:
         self.logger: logging.Logger = logging.getLogger(LoggerNames.DATA)
 
     def get_tag_sources(self, con: sqlite3.Connection) \
-            -> Tuple[DataError, Dict[TagSource, int]]:
+            -> Tuple[DataError, Dict[TagSourceName, int]]:
         try:
             with con:
                 rows = con.execute("select * from TagSource").fetchall()
@@ -22,7 +22,7 @@ class TagRepository:
                     result = dict()
 
                     for row in rows:
-                        result[TagSource(row[1])] = row[0]
+                        result[TagSourceName(row[1])] = row[0]
 
                     return make_da_response(result=result)
                 else:

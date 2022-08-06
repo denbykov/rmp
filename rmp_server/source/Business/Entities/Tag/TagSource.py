@@ -1,7 +1,9 @@
 from enum import Enum
 
+from dataclasses import dataclass
 
-class TagSource(Enum):
+
+class TagSourceName(Enum):
     NATIVE = "native"
     SPOTIFY = "spotify"
     ITUNES = "itunes"
@@ -16,3 +18,9 @@ class TagSource(Enum):
             return "it"
         if self.value == self.CELERIS_GOOGLE_SEARCH.value:
             return "cgs"
+
+
+@dataclass
+class TagSource:
+    id: int
+    name: TagSourceName

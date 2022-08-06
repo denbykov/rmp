@@ -31,7 +31,7 @@ class DataAccessorMock(IDataAccessor):
             -> Tuple[DataError, None]:
         pass
 
-    def get_tag_sources(self) -> Tuple[DataError, Dict[TagSource, int]]:
+    def get_tag_sources(self) -> Tuple[DataError, Dict[TagSourceName, int]]:
         pass
 
     def get_tag_states(self) -> Tuple[DataError, Dict[TagStateName, int]]:
