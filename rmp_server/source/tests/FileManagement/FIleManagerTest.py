@@ -6,7 +6,7 @@ from .DownloadingManagerMock import *
 
 from source.Data.utils import *
 
-from source.Business.Controllers.FileManagement.FileManager import FileManager
+from source.Business.FileManagement.FileManager import FileManager
 from source.Business.Parsers.URLParser import *
 
 file_states = {

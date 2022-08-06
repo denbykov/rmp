@@ -30,3 +30,6 @@ class DataAccessorMock(IDataAccessor):
     def update_file_state(self, file_id: int, state: FileState)\
             -> Tuple[DataError, None]:
         pass
+
+    def get_tag_sources(self) -> Tuple[DataError, Dict[FileStateName, int]]:
+        pass

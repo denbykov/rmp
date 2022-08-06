@@ -1,7 +1,5 @@
 from .AuthorizedHandler import *
 
-from source.Business.Controllers.FileManagement.FileController import *
-
 from source.Presentation.Parsers.FileURLParser import *
 from source.Presentation.Formatters.File.FileFormatter import *
 

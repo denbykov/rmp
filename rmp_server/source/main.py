@@ -7,7 +7,7 @@ import logging.handlers
 from Core.HTTPHandlerAdapter import HTTPHandlerAdapter
 from Presentation.HTTPHandlerFactory import *
 
-import source.Business.Controllers.FileManagement.FileManager as fm
+import source.Business.FileManagement.FileManager as fm
 
 import LoggerNames
 import sqlite3

@@ -1,4 +1,4 @@
-from source.Business.Controllers.FileManagement.IDownloadingManager import *
+from source.Business.FileManagement.IDownloadingManager import *
 
 
 class DownloadingManagerMock(IDownloadingManager):
