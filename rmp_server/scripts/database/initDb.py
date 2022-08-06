@@ -57,4 +57,29 @@ try:
 except sqlite3.OperationalError as ex:
     print(ex)
 
+print("creating table TagSource", end=": ")
+try:
+    cur.execute(
+        '''CREATE TABLE TagSource
+           (id integer primary key autoincrement,
+            name varchar unique not null)''')
+
+    con.commit()
+    print("Done")
+except sqlite3.OperationalError as ex:
+    print(ex)
+
+print("filling table TagSource", end=": ")
+try:
+    cur.execute(
+        '''insert into TagSource(name)
+           values ("native"), ("spotify"), ("itunes"), ("celeris-google-search")''')
+
+    con.commit()
+    print("Done")
+except sqlite3.OperationalError as ex:
+    print(ex)
+except sqlite3.IntegrityError:
+    print("Records already exists")
+
 con.close()

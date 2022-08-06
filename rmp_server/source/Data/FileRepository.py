@@ -11,7 +11,8 @@ from .utils import *
 SELECT_FILE_FROM_FILE: str =\
     "select " \
     "File.id,File.url,File.path," \
-    "FileState.id,FileState.name,File.stateDescription from File " \
+    "FileState.id,FileState.name,File.stateDescription from File "
+
 
 class FileRepository:
     def __init__(self):

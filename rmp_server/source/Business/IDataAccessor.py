@@ -40,3 +40,7 @@ class IDataAccessor(ABC):
     def get_files_by_state(self, states: Tuple[FileStateName, ...])\
             -> Tuple[DataError, List[File]]:
         pass
+
+    @abstractmethod
+    def get_tag_sources(self) -> Tuple[DataError, Dict[FileStateName, int]]:
+        pass
