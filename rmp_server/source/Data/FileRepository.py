@@ -50,13 +50,13 @@ class FileRepository:
             self.logger.error(LogContext.form(self) + str(ex))
             return make_da_response(error=ErrorCodes.UNKNOWN_ERROR)
 
-    def add_file(self, file: File, state_id: int, con: sqlite3.Connection) -> Tuple[DataError, File]:
+    def add_file(self, file: File, con: sqlite3.Connection) -> Tuple[DataError, File]:
         try:
             with con:
                 cursor: sqlite3.Cursor = con.execute(
                     "insert into File(stateId,url,path,stateDescription) "
                     "values ((?),(?),(?),(?))",
-                    (state_id, file.url, str(file.path), file.state.description))
+                    (file.state.id, file.url, str(file.path), file.state.description))
                 con.commit()
 
                 file.id = cursor.lastrowid

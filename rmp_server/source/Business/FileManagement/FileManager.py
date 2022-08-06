@@ -82,8 +82,7 @@ class FileManager:
             FileStateName.PENDING,
             "")
 
-        error, file = self.data_accessor.add_file(
-            file, self.db_states_id_mapping[FileStateName.PENDING])
+        error, file = self.data_accessor.add_file(file)
 
         if not error:
             self._enqueue_downloading(file)

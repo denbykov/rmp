@@ -8,7 +8,7 @@ class DataAccessorMock(IDataAccessor):
     def add_user(self, credentials: UserCredentials) -> DataError:
         pass
 
-    def add_file(self, file: File, state_id: int) -> Tuple[DataError, File]:
+    def add_file(self, file: File) -> Tuple[DataError, File]:
         pass
 
     def get_file(self, file_id: int) -> Tuple[DataError, File]:
@@ -31,5 +31,8 @@ class DataAccessorMock(IDataAccessor):
             -> Tuple[DataError, None]:
         pass
 
-    def get_tag_sources(self) -> Tuple[DataError, Dict[FileStateName, int]]:
+    def get_tag_sources(self) -> Tuple[DataError, Dict[TagSource, int]]:
+        pass
+
+    def get_tag_states(self) -> Tuple[DataError, Dict[TagStateName, int]]:
         pass

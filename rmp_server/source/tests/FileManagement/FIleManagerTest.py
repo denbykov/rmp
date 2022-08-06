@@ -144,8 +144,7 @@ class FileManagerTest(unittest.TestCase):
 
         error, file = self.file_manager.download_file(raw_file_1)
 
-        self.data_accessor.add_file.assert_called_once_with(
-            prefilled_file_1, FileManager.db_states_id_mapping[FileStateName.PENDING])
+        self.data_accessor.add_file.assert_called_once_with(prefilled_file_1)
         FileManager.downloading_manager.enqueue_file.assert_called_once_with(
             pending_file_1, URLParser.parse(pending_file_1.url))
 

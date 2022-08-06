@@ -39,7 +39,7 @@ try:
 except sqlite3.OperationalError as ex:
     print(ex)
 except sqlite3.IntegrityError:
-    print("Records already exists")
+    print("Records already exist")
 
 print("creating table File", end=": ")
 try:
@@ -80,6 +80,31 @@ try:
 except sqlite3.OperationalError as ex:
     print(ex)
 except sqlite3.IntegrityError:
-    print("Records already exists")
+    print("Records already exist")
+
+print("creating table TagState", end=": ")
+try:
+    cur.execute(
+        '''CREATE TABLE TagState
+           (id integer primary key autoincrement,
+            name varchar unique not null)''')
+
+    con.commit()
+    print("Done")
+except sqlite3.OperationalError as ex:
+    print(ex)
+
+print("filling table TagState", end=": ")
+try:
+    cur.execute(
+        '''insert into TagState(name)
+           values ("pending"), ("parsing"), ("ready"), ("error")''')
+
+    con.commit()
+    print("Done")
+except sqlite3.OperationalError as ex:
+    print(ex)
+except sqlite3.IntegrityError:
+    print("Records already exist")
 
 con.close()

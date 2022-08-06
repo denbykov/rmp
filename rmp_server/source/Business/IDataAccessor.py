@@ -5,6 +5,8 @@ from .Entities.DataError import *
 from .Entities.UserCredentials import *
 from source.Business.Entities.File.File import *
 
+from source.Business.Entities.Tag.Tag import *
+
 
 class IDataAccessor(ABC):
     @abstractmethod
@@ -16,7 +18,7 @@ class IDataAccessor(ABC):
         pass
 
     @abstractmethod
-    def add_file(self, file: File, state_id: int) -> Tuple[DataError, File]:
+    def add_file(self, file: File) -> Tuple[DataError, File]:
         pass
 
     @abstractmethod
@@ -42,5 +44,9 @@ class IDataAccessor(ABC):
         pass
 
     @abstractmethod
-    def get_tag_sources(self) -> Tuple[DataError, Dict[FileStateName, int]]:
+    def get_tag_sources(self) -> Tuple[DataError, Dict[TagSource, int]]:
+        pass
+
+    @abstractmethod
+    def get_tag_states(self) -> Tuple[DataError, Dict[TagStateName, int]]:
         pass

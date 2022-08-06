@@ -19,8 +19,8 @@ class DataAccessor(IDataAccessor):
         return self.user_repository.add_user(credentials, self.con)
 
     # file repo
-    def add_file(self, file: File, state_id: int) -> Tuple[DataError, File]:
-        return self.file_repository.add_file(file, state_id, self.con)
+    def add_file(self, file: File) -> Tuple[DataError, File]:
+        return self.file_repository.add_file(file, self.con)
 
     def get_file(self, file_id: int) -> Tuple[DataError, File]:
         return self.file_repository.get_file(file_id, self.con)
@@ -41,3 +41,6 @@ class DataAccessor(IDataAccessor):
     # tag repo
     def get_tag_sources(self) -> Tuple[DataError, Dict[TagSource, int]]:
         return self.tag_repository.get_tag_sources(self.con)
+
+    def get_tag_states(self) -> Tuple[DataError, Dict[TagStateName, int]]:
+        return self.tag_repository.get_tag_states(self.con)
