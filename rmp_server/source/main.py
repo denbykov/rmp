@@ -8,6 +8,11 @@ from Core.HTTPHandlerAdapter import HTTPHandlerAdapter
 from Presentation.HTTPHandlerFactory import *
 
 import source.Business.FileManagement.FileManager as fm
+import source.Business.TagManagement.TagManager as tm
+import source.Business.TagManagement.ParsingManager as pm
+
+from source.Data.SeleniumBrowser import *
+from source.Presentation.TagParsing.WebParserFactory import *
 
 import LoggerNames
 import sqlite3
@@ -45,6 +50,18 @@ class ServerApplication:
         fm.FileManager.init(
             DataAccessor(sqlite3.connect(DB_LOCATION)),
             Path(self.config.get(Config.FILE_MANAGEMENT, Config.FILE_DIR)))
+
+        parsing_manager: pm.ParsingManager = pm.ParsingManager(
+            WebParserFactory(
+                SeleniumBrowser(("--headless", "--disable-web-security"))
+            )
+        )
+
+        tm.TagManager.init(
+            parsing_manager,
+            DataAccessor(sqlite3.connect(DB_LOCATION)),
+            Path(self.config.get(Config.FILE_MANAGEMENT, Config.FILE_DIR))
+        )
 
     def _init_logging(self):
         if not LOG_DIR_LOCATION.is_dir():

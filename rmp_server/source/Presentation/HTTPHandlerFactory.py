@@ -32,5 +32,8 @@ class HTTPHandlerFactory(IHTTPHandlerFactory):
         if path.startswith('/file-management/files'):
             return FileManagementHandler.FileManagementHandler(
                 data_accessor, self.jwt_secret)
+        if path.startswith('/tag-management'):
+            return TagManagementHandler.TagManagementHandler(
+                data_accessor, self.jwt_secret)
 
         return NotFoundHandler.NotFoundHandler(data_accessor)

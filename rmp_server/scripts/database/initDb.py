@@ -73,7 +73,7 @@ print("filling table TagSource", end=": ")
 try:
     cur.execute(
         '''insert into TagSource(name)
-           values ("native"), ("spotify"), ("itunes"), ("celeris-google-search")''')
+           values ("native-yt"), ("spotify"), ("itunes"), ("celeris-google-search")''')
 
     con.commit()
     print("Done")
@@ -98,7 +98,7 @@ print("filling table TagState", end=": ")
 try:
     cur.execute(
         '''insert into TagState(name)
-           values ("pending"), ("parsing"), ("ready"), ("error")''')
+           values ("pending"), ("ready"), ("error")''')
 
     con.commit()
     print("Done")
@@ -106,5 +106,28 @@ except sqlite3.OperationalError as ex:
     print(ex)
 except sqlite3.IntegrityError:
     print("Records already exist")
+
+print("creating table Tag", end=": ")
+try:
+    cur.execute(
+        '''CREATE TABLE Tag
+           (id integer primary key autoincrement,
+            fileId integer not null,
+            sourceId integer not null,
+            stateId integer not null,
+            name varchar,
+            artist varchar,
+            lyrics varchar,
+            year integer,
+            apicPath varchar unique,
+            foreign key(fileId) references File(id),
+            foreign key(sourceId) references TagSource(id),
+            foreign key(stateId) references TagState(id),
+            unique(fileId,sourceId))''')
+
+    con.commit()
+    print("Done")
+except sqlite3.OperationalError as ex:
+    print(ex)
 
 con.close()

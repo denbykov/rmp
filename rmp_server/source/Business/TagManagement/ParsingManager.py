@@ -1,7 +1,5 @@
-from .IDownloadingManager import *
-
-from .Downloaders.IDownloader import *
-from .Downloaders.YTDownloader import *
+from .IParsingManager import *
+from .IWebParserFactory import *
 
 import threading
 
@@ -15,75 +13,84 @@ from typing import *
 import copy
 
 
-class DownloadingManager(IDownloadingManager):
+class ParsingManager(IParsingManager):
     """Application must have only one instance of DownloadingManager!"""
 
-    def __init__(self):
+    def __init__(self, parser_factory: IWebParserFactory):
         self.logger: logging.Logger = logging.getLogger(LoggerNames.BUSINESS)
         self.queue: queue.Queue = queue.Queue()
         self.progress_lock: threading.Lock = threading.Lock()
-        self.progress_storage: Dict[int, DownloadingProgress] = dict()
+        self.active_tags_storage: Dict[int, Tuple[ParsingProgress, Tag]] = dict()
+        self.parser_factory: IWebParserFactory = parser_factory
 
     def run(self) -> None:
-        self.logger.info("Starting downloader")
+        self.logger.info("Starting parsing manager")
         thread: threading.Thread = \
             threading.Thread(target=self._mainloop, args=(self,), daemon=True)
         thread.start()
-        self.logger.info("Downloader loop started")
+        self.logger.info("Parsing manager loop started")
 
     @staticmethod
     def _mainloop(manager) -> None:
         while True:
-            task: Tuple[File, FileSourceInfo] = manager.queue.get()
+            task: Tuple[Tag, Union[str, Tag]] = manager.queue.get()
+            tag = task[0]
+            primary_data = task[1]
 
             try:
-                downloader: IDownloader = manager._get_downloader(task[1])
+                parser: IWebParser = \
+                    manager.parser_factory.create_parser(tag.source.name)
 
                 with manager.progress_lock:
-                    manager.progress_storage[task[0].id] = \
-                        DownloadingProgress(0, 0, FileStateName.LOADING)
+                    manager.active_tags_storage[tag.id] = \
+                        (ParsingProgress(TagStateName.PARSING), tag)
 
-                downloader.download(
-                    task[0],
-                    task[1],
+                parser.parse(
+                    tag,
+                    primary_data,
                     manager.progress_lock,
-                    manager.progress_storage[task[0].id])
+                    manager.active_tags_storage[tag.id][0])
 
             except RuntimeError:
-                manager.logger.error(f"Failed to create downloader for {task[1].source}")
+                manager.logger.error(
+                    f"Failed to create parser for tag with id: {tag.id}")
 
             except Exception as ex:
-                manager.logger.error(f"Downloading error: {ex}")
+                manager.logger.error(f"Parsing error: {ex}")
 
             manager.queue.task_done()
 
-    @staticmethod
-    def _get_downloader(info: FileSourceInfo):
-        if info.source == FileSource.YOUTUBE:
-            return YTDownloader
-
-        raise RuntimeError("Unknown file source")
-
-    def enqueue_file(self, file: File, info: FileSourceInfo):
+    def enqueue_tag(self, tag: Tag):
         try:
-            self.queue.put((file, info))
+            self.queue.put((tag,))
         except Exception as ex:
-            self.logger.error(f"Failed to add file to the downloading queue: {file.url}"
-                              f"reason: {ex}")
+            self.logger.error(
+                f"Failed to add tag to the parsing queue: {tag.id}"
+                f"reason: {ex}")
 
-        self.logger.info(f"File added to the downloading queue: {file.url}")
+        self.logger.info(f"Tag added to the parsing queue: {tag.id}")
 
-    def get_progress(self, file_id: int) -> Optional[DownloadingProgress]:
-        progress: Optional[DownloadingProgress] = None
+    def enqueue_native_tag(self, tag: Tag, uid: str):
+        try:
+            self.queue.put((tag, uid))
+        except Exception as ex:
+            self.logger.error(
+                f"Failed to add tag to the parsing queue: {tag.id}"
+                f"reason: {ex}")
+
+        self.logger.info(f"Tag added to the parsing queue: {tag.id}")
+
+    def get_progress(self, tag_id: int) -> Optional[Tuple[ParsingProgress, Tag]]:
+        progress: Optional[Tuple[ParsingProgress, Tag]] = None
 
         try:
             with self.progress_lock:
-                progress = copy.deepcopy(self.progress_storage[file_id])
+                progress = copy.deepcopy(self.active_tags_storage[tag_id])
         except KeyError:
             pass
 
         return progress
 
-    def del_progress(self, file_id: int):
+    def del_progress(self, tag_id: int):
         with self.progress_lock:
-            del self.progress_storage[file_id]
+            del self.active_tags_storage[tag_id]

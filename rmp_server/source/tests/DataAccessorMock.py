@@ -36,3 +36,22 @@ class DataAccessorMock(IDataAccessor):
 
     def get_tag_states(self) -> Tuple[DataError, Dict[TagStateName, int]]:
         pass
+
+    def add_tag(self, tag: Tag) \
+            -> Tuple[DataError, Tag]:
+        pass
+
+    def get_tags_by_state(self, states: Tuple[TagStateName, ...]) \
+            -> Tuple[DataError, List[Tag]]:
+        pass
+
+    def update_tag_state(self, tag_id: int, state: TagState) \
+            -> Tuple[DataError, None]:
+        pass
+
+    def get_tag(self, tag_id: int) -> Tuple[DataError, Tag]:
+        pass
+
+    def update_tag(self, tag: Tag) \
+            -> Tuple[DataError, None]:
+        pass

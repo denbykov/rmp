@@ -7,18 +7,12 @@ from .DownloadingManagerMock import *
 from source.Data.utils import *
 
 from source.Business.FileManagement.FileManager import FileManager
-from source.Business.Parsers.URLParser import *
+from source.Presentation.Parsers.URLParser import *
 
 file_states = {
     FileStateName.ERROR: 1,
     FileStateName.PENDING: 2,
     FileStateName.READY: 3}
-
-file_state_pending: FileState = FileState(
-    file_states[FileStateName.PENDING],
-    FileStateName.PENDING,
-    ""
-)
 
 file_state_pending: FileState = FileState(
     file_states[FileStateName.PENDING],

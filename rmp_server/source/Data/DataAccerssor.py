@@ -44,3 +44,22 @@ class DataAccessor(IDataAccessor):
 
     def get_tag_states(self) -> Tuple[DataError, Dict[TagStateName, int]]:
         return self.tag_repository.get_tag_states(self.con)
+
+    def add_tag(self, tag: Tag) \
+            -> Tuple[DataError, Tag]:
+        return self.tag_repository.add_tag(tag, self.con)
+
+    def get_tags_by_state(self, states: Tuple[TagStateName, ...]) \
+            -> Tuple[DataError, List[Tag]]:
+        return self.tag_repository.get_tags_by_state(states, self.con)
+
+    def update_tag_state(self, tag_id: int, state: TagState) \
+            -> Tuple[DataError, None]:
+        return self.tag_repository.update_tag_state(tag_id, state, self.con)
+
+    def update_tag(self, tag: Tag) \
+            -> Tuple[DataError, None]:
+        return self.tag_repository.update_tag(tag, self.con)
+
+    def get_tag(self, tag_id: int) -> Tuple[DataError, Tag]:
+        return self.tag_repository.get_tag(tag_id, self.con)

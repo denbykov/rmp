@@ -2,6 +2,7 @@ from .AuthorizedHandler import *
 
 from source.Presentation.Parsers.FileURLParser import *
 from source.Presentation.Formatters.File.FileFormatter import *
+from source.Business.Controllers.FileController import *
 
 
 class FileManagementHandler(AuthorizedHandler):

@@ -1,10 +1,10 @@
 from source.Business.IDataAccessor import *
 
-from source.Business.Entities.Tag.Tag import *
-from source.Business.Entities.File.FileSourceInfo import *
 from source.Business.Entities.DataError import *
 
-# from .DownloadingManager import *
+from .IParsingManager import *
+
+from source.Presentation.Parsers.URLParser import *
 
 import logging
 import source.LoggerNames as LoggerNames
@@ -15,10 +15,10 @@ from typing import *
 
 
 class TagManager:
-    db_tag_sources_id_mapping: Dict[TagSourceName, int]
+    db_sources_id_mapping: Dict[TagSourceName, int]
     db_states_id_mapping: Dict[TagStateName, int]
     file_dir: Path = Path()
-    parsing_manager: IDownloadingManager = DownloadingManager()
+    parsing_manager: IParsingManager = None
     apic_dir: Path = "apic"
 
     def __init__(self, data_accessor: IDataAccessor):
@@ -26,16 +26,22 @@ class TagManager:
         self.logger: logging.Logger = logging.getLogger(LoggerNames.BUSINESS)
 
     @classmethod
-    def init(cls, data_accessor: IDataAccessor, file_dir: Path):
+    def init(
+            cls, parsing_manager: IParsingManager,
+            data_accessor: IDataAccessor, file_dir: Path):
+        cls.parsing_manager = parsing_manager
+
         logger: logging.Logger = logging.getLogger(LoggerNames.BUSINESS)
         logger.info(f"Initializing {cls.__name__} class")
 
         manager = cls(data_accessor)
-        cls.db_tag_sources_id_mapping = manager._load_tag_sources_mapping()
+        cls.db_sources_id_mapping = manager._load_tag_sources_mapping()
         cls.db_states_id_mapping = manager._load_states_mapping()
         cls._init_dirs(file_dir)
 
         cls.parsing_manager.run()
+
+        manager._restore_parsing_queue()
 
         logger.info(f"Done initializing {cls.__name__} class")
 
@@ -68,46 +74,63 @@ class TagManager:
     def _restore_parsing_queue(self):
         self.logger.info("Restoring parsing")
 
-        error, files = self.data_accessor.get_files_by_state(
+        error, tags = self.data_accessor.get_tags_by_state(
             (TagStateName.PENDING,))
         if error:
-            raise RuntimeError("Failed to fetch files to be restored")
+            raise RuntimeError("Failed to fetch tags to be restored")
 
-        for file in files:
-            self._enqueue_parsing(file)
+        for tag in tags:
+            if tag.source.name in (TagSourceName.NATIVE_YT,):
+                self._restore_native_tag_parsing(tag)
+            else:
+                pass
 
-        self.logger.info("parsing restored")
+        self.logger.info(f"{len(tags)} tags restored for parsing")
 
-    def _enqueue_parsing(
-            self,
-            tag: Tag,
-            file_source_info: Optional[FileSourceInfo] = None) \
-            -> None:
-        self.parsing_manager.enqueue_tag(tag, file_source_info)
+    def _restore_native_tag_parsing(self, tag: Tag):
+        error, file = self.data_accessor.get_file(tag.file_id)
+        if error:
+            raise RuntimeError(f"Failed to read file with id: {tag.file_id}")
 
-    def parse_native_tag(self, tag: Tag, file_source_info: FileSourceInfo) \
+        uid: str = URLParser.parse(file.url).uid
+
+        self._enqueue_native_tag_parsing(tag, uid)
+
+    def _enqueue_parsing(self, tag: Tag) -> None:
+        self.parsing_manager.enqueue_tag(tag)
+
+    def _enqueue_native_tag_parsing(self, tag: Tag, uid: str) -> None:
+        self.parsing_manager.enqueue_native_tag(tag, uid)
+
+    def parse_native_tag(
+            self, tag: Tag, file_id: int, file_source_info: FileSourceInfo) \
             -> Tuple[DataError, Tag]:
+        tag_source: TagSourceName = self._get_file_source(file_source_info)
+
+        tag.source = TagSource(
+            self.db_sources_id_mapping[tag_source], tag_source)
+
+        tag.state = TagState(
+            self.db_states_id_mapping[TagStateName.PENDING],
+            TagStateName.PENDING)
+
         try:
-            tag.apic = self._create_native_apic_file_path(tag, file_source_info)
+            tag.apic_path = self._create_native_apic_file_path(tag, file_source_info)
             # Todo: check path correctness
         except RuntimeError:
             return DataError(True, ErrorCodes.BAD_ARGUMENT), tag
 
-        tag.source = TagSource(
-            self.db_tag_sources_id_mapping[TagSourceName.NATIVE],
-            TagSourceName.NATIVE)
-
-        tag.state = TagState(
-            self.db_states_id_mapping[TagStateName.PENDING],
-            TagStateName.PENDING
-        )
-
         error, tag = self.data_accessor.add_tag(tag)
 
         if not error:
-            self._enqueue_parsing(tag)
+            self._enqueue_native_tag_parsing(tag, file_source_info.uid)
 
         return error, tag
+
+    @staticmethod
+    def _get_file_source(info: FileSourceInfo) -> TagSourceName:
+        if info.source == FileSource.YOUTUBE:
+            return TagSourceName.NATIVE_YT
 
     def _create_native_apic_file_path(
             self,
@@ -126,4 +149,42 @@ class TagManager:
             self.apic_dir / \
             f"{file_source_info.source.value}" \
             f"_{uid}" \
-            f"_{tag.source.get_abbreviation()}."
+            f"_{tag.source.name.get_abbreviation()}."
+
+    def get_state(self, tag_id: int) -> Tuple[DataError, TagState]:
+        progress: Optional[Tuple[ParsingProgress, Tag]] =\
+            self.parsing_manager.get_progress(tag_id)
+
+        if progress:
+            return self.get_state_from_progress(progress)
+
+        error, tag = self.data_accessor.get_tag(tag_id)
+        if error:
+            return error, None
+        return error, tag.state
+
+    def get_state_from_progress(
+            self, progress_data: Tuple[ParsingProgress, Tag])\
+            -> Tuple[DataError, TagState]:
+        error = DataError(False, ErrorCodes.UNKNOWN_ERROR)
+
+        progress: ParsingProgress = progress_data[0]
+        tag: Tag = progress_data[1]
+
+        state: TagState = TagState(0, progress.state)
+
+        if progress.state in self.db_states_id_mapping:
+            state.id = self.db_states_id_mapping[progress.state]
+
+        if progress.state == TagStateName.PARSING:
+            return error, state
+        if progress.state == TagStateName.ERROR:
+            error, ignored = self.data_accessor.update_tag_state(tag.id, state)
+            self.parsing_manager.del_progress(tag.id)
+            return error, state
+        if progress.state == TagStateName.READY:
+            state.id = self.db_states_id_mapping[TagStateName.READY]
+            error, ignored = self.data_accessor.update_tag(tag)
+            self.parsing_manager.del_progress(tag.id)
+
+            return error, state

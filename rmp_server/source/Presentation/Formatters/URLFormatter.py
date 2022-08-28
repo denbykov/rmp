@@ -6,10 +6,10 @@ class URLFormatter:
     def format(info: FileSourceInfo) -> str:
 
         if info.source == FileSource.YOUTUBE:
-            return URLFormatter.format_yt_url(info)
+            return URLFormatter.format_yt_url(info.uid)
 
         raise RuntimeError("Unknown file source")
 
     @staticmethod
-    def format_yt_url(info: FileSourceInfo) -> str:
-        return f"https://www.youtube.com/watch?v={info.uid}"
+    def format_yt_url(uid: str) -> str:
+        return f"https://www.youtube.com/watch?v={uid}"

@@ -1,5 +1,5 @@
 from source.Business.IDataAccessor import *
-from source.Business.Parsers.URLParser import *
+from source.Presentation.Parsers.URLParser import *
 
 from .DownloadingManager import *
 
@@ -133,8 +133,8 @@ class FileManager:
                 uid += el
 
         return \
-            FileManager.file_dir / \
-            FileManager.audio_dir / \
+            self.file_dir / \
+            self.audio_dir / \
             f"{info.source.value}_{uid}.mp3"
 
     def get_file(self, file_id: int) -> Tuple[DataError, bytes]:

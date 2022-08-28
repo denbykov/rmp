@@ -50,3 +50,27 @@ class IDataAccessor(ABC):
     @abstractmethod
     def get_tag_states(self) -> Tuple[DataError, Dict[TagStateName, int]]:
         pass
+
+    @abstractmethod
+    def add_tag(self, tag: Tag) \
+            -> Tuple[DataError, Tag]:
+        pass
+
+    @abstractmethod
+    def get_tags_by_state(self, states: Tuple[TagStateName, ...]) \
+            -> Tuple[DataError, List[Tag]]:
+        pass
+
+    @abstractmethod
+    def update_tag_state(self, tag_id: int, state: TagState) \
+            -> Tuple[DataError, None]:
+        pass
+
+    @abstractmethod
+    def update_tag(self, tag: Tag) \
+            -> Tuple[DataError, None]:
+        pass
+
+    @abstractmethod
+    def get_tag(self, tag_id: int) -> Tuple[DataError, Tag]:
+        pass

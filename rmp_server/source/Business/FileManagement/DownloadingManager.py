@@ -25,11 +25,11 @@ class DownloadingManager(IDownloadingManager):
         self.progress_storage: Dict[int, DownloadingProgress] = dict()
 
     def run(self) -> None:
-        self.logger.info("Starting downloader")
+        self.logger.info("Starting downloading manager")
         thread: threading.Thread = \
             threading.Thread(target=self._mainloop, args=(self,), daemon=True)
         thread.start()
-        self.logger.info("Downloader loop started")
+        self.logger.info("Downloading manager loop started")
 
     @staticmethod
     def _mainloop(manager) -> None:
