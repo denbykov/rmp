@@ -12,6 +12,7 @@ import source.Business.TagManagement.TagManager as tm
 import source.Business.TagManagement.ParsingManager as pm
 
 from source.Data.SeleniumBrowser import *
+from source.Data.RequestAgent import *
 from source.Presentation.TagParsing.WebParserFactory import *
 
 import LoggerNames
@@ -53,7 +54,8 @@ class ServerApplication:
 
         parsing_manager: pm.ParsingManager = pm.ParsingManager(
             WebParserFactory(
-                SeleniumBrowser(("--headless", "--disable-web-security"))
+                SeleniumBrowser(("--headless", "--disable-web-security")),
+                RequestAgent()
             )
         )
 

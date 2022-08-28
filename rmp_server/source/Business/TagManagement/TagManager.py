@@ -148,8 +148,8 @@ class TagManager:
             self.file_dir / \
             self.apic_dir / \
             f"{file_source_info.source.value}" \
-            f"_{uid}" \
-            f"_{tag.source.name.get_abbreviation()}."
+            f"_{uid}." \
+            f"{tag.source.name.get_abbreviation()}"
 
     def get_state(self, tag_id: int) -> Tuple[DataError, TagState]:
         progress: Optional[Tuple[ParsingProgress, Tag]] =\
@@ -184,6 +184,7 @@ class TagManager:
             return error, state
         if progress.state == TagStateName.READY:
             state.id = self.db_states_id_mapping[TagStateName.READY]
+            tag.state = state
             error, ignored = self.data_accessor.update_tag(tag)
             self.parsing_manager.del_progress(tag.id)
 
