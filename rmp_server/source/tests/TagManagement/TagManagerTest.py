@@ -56,7 +56,7 @@ pending_tag_1 = Tag(
     artist="",
     lyrics="",
     year=0,
-    apic_path=Path("storage\\apic\\yt_4a8ccogwwaa3-yy_nt-yt.")
+    apic_path=Path("storage\\apic\\yt_4a8ccogwwaa3-yy.nt-yt")
 )
 
 raw_tag_1 = Tag(
@@ -80,7 +80,7 @@ prefilled_tag_1 = Tag(
     artist="",
     lyrics="",
     year=0,
-    apic_path=Path("storage\\apic\\yt_4a8ccogwwaa3-yy_nt-yt.")
+    apic_path=Path("storage\\apic\\yt_4a8ccogwwaa3-yy.nt-yt")
 )
 
 ready_tag_1 = Tag(
@@ -92,7 +92,7 @@ ready_tag_1 = Tag(
     artist="",
     lyrics="",
     year=0,
-    apic_path=Path("storage\\apic\\yt_4a8ccogwwaa3-yy_nt-yt.")
+    apic_path=Path("storage\\apic\\yt_4a8ccogwwaa3-yy.nt-yt")
 )
 
 
@@ -199,7 +199,6 @@ class TagManagerTest(unittest.TestCase):
 
         error, tag = self.tag_manager.parse_native_tag(
             raw_tag_1,
-            pending_file_1.id,
             URLParser.parse(pending_file_1.url))
 
         self.data_accessor.add_tag.assert_called_once_with(prefilled_tag_1)

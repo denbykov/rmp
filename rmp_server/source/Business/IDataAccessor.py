@@ -74,3 +74,10 @@ class IDataAccessor(ABC):
     @abstractmethod
     def get_tag(self, tag_id: int) -> Tuple[DataError, Tag]:
         pass
+
+    @abstractmethod
+    def get_native_tag_for_file(
+            self,
+            file_id: int,
+            native_tag_sources: Tuple[int]) -> Tuple[DataError, Tag]:
+        pass

@@ -60,9 +60,9 @@ class ParsingManager(IParsingManager):
 
             manager.queue.task_done()
 
-    def enqueue_tag(self, tag: Tag):
+    def enqueue_tag(self, tag: Tag, native_tag: Tag):
         try:
-            self.queue.put((tag,))
+            self.queue.put((tag, native_tag))
         except Exception as ex:
             self.logger.error(
                 f"Failed to add tag to the parsing queue: {tag.id}"

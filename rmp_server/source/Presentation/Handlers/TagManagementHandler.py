@@ -43,6 +43,16 @@ class TagManagementHandler(AuthorizedHandler):
 
         return HTTPResponse(HTTPResponseCode.OK, TagFormatter.format(result))
 
+    def _parse_tags(self, file_id: int, sources: str) -> HTTPResponse:
+        url: str = ""
+
+        result = self.controller.pase_tags(file_id)
+
+        if isinstance(result, APIError):
+            return self.handle_api_error(result)
+
+        return HTTPResponse(HTTPResponseCode.OK, TagFormatter.format(result))
+
     def _get_tag_state(self, tag_id: int) -> HTTPResponse:
         url: str = ""
 

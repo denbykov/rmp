@@ -32,12 +32,39 @@ class TagController:
 
         info: FileSourceInfo = URLParser.parse(file.url)
 
-        error, tag = self.tag_manager.parse_native_tag(tag, file_id, info)
+        error, tag = self.tag_manager.parse_native_tag(tag, info)
 
         if error:
             return self._get_error_response(error)
 
         return tag
+
+    def pase_tags(
+            self,
+            file_id: int,
+            tag_sources: List[TagSourceName]) -> Union[APIError, List[Tag]]:
+        tags: List[Tag] = list()
+        for el in tag_sources:
+            tag = Tag(
+                id=0,
+                file_id=file_id,
+                source=None,
+                state=None,
+                name='',
+                artist='',
+                lyrics='',
+                year=0,
+                apic_path=Path()
+            )
+
+            error, tag = self.tag_manager.parse_tag(tag, el)
+
+            if error:
+                return self._get_error_response(error)
+
+            tags.append(tag)
+
+        return tags
 
     def get_tag_state(self, tag_id: int) -> Union[APIError, TagState]:
         error, tag_state = self.tag_manager.get_state(tag_id)

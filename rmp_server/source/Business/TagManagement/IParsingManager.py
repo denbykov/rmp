@@ -11,7 +11,7 @@ class IParsingManager(ABC):
         pass
 
     @abstractmethod
-    def enqueue_tag(self, tag: Tag):
+    def enqueue_tag(self, tag: Tag, native_tag: Tag):
         pass
 
     @abstractmethod

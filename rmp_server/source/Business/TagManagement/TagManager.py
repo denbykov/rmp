@@ -96,14 +96,14 @@ class TagManager:
 
         self._enqueue_native_tag_parsing(tag, uid)
 
-    def _enqueue_parsing(self, tag: Tag) -> None:
-        self.parsing_manager.enqueue_tag(tag)
+    def _enqueue_parsing(self, tag: Tag, native_tag: Tag) -> None:
+        self.parsing_manager.enqueue_tag(tag, native_tag)
 
     def _enqueue_native_tag_parsing(self, tag: Tag, uid: str) -> None:
         self.parsing_manager.enqueue_native_tag(tag, uid)
 
     def parse_native_tag(
-            self, tag: Tag, file_id: int, file_source_info: FileSourceInfo) \
+            self, tag: Tag, file_source_info: FileSourceInfo) \
             -> Tuple[DataError, Tag]:
         tag_source: TagSourceName = self._get_file_source(file_source_info)
 
@@ -126,6 +126,42 @@ class TagManager:
             self._enqueue_native_tag_parsing(tag, file_source_info.uid)
 
         return error, tag
+
+    def parse_tag(
+            self, tag: Tag, tag_source: TagSourceName) \
+            -> Tuple[DataError, Tag]:
+
+        error, native_tag = self.data_accessor.get_native_tag_for_file(
+            tag.file_id,
+            self._form_native_tag_source_ids())
+
+        if error:
+            return error, tag
+
+        tag.source = TagSource(
+            self.db_sources_id_mapping[tag_source], tag_source)
+
+        tag.state = TagState(
+            self.db_states_id_mapping[TagStateName.PENDING],
+            TagStateName.PENDING)
+
+        try:
+            tag.apic_path = self._create_apic_file_path_from_native(
+                tag, native_tag.source, native_tag.apic_path)
+            # Todo: check path correctness
+        except RuntimeError:
+            return DataError(True, ErrorCodes.BAD_ARGUMENT), tag
+
+        error, tag = self.data_accessor.add_tag(tag)
+
+        if not error:
+            self._enqueue_parsing(tag, native_tag)
+
+        return error, tag
+
+    def _form_native_tag_source_ids(self) -> Tuple[int]:
+        return (
+            self.db_sources_id_mapping[TagSourceName.NATIVE_YT],)
 
     @staticmethod
     def _get_file_source(info: FileSourceInfo) -> TagSourceName:
@@ -150,6 +186,17 @@ class TagManager:
             f"{file_source_info.source.value}" \
             f"_{uid}." \
             f"{tag.source.name.get_abbreviation()}"
+
+    @staticmethod
+    def _create_apic_file_path_from_native(
+            tag: Tag,
+            native_tag_source: TagSource,
+            native_apic_path: Path) -> Path:
+        path: str = str(native_apic_path)
+        path = path.replace(
+            native_tag_source.name.get_abbreviation(),
+            tag.source.name.get_abbreviation())
+        return Path(path)
 
     def get_state(self, tag_id: int) -> Tuple[DataError, TagState]:
         progress: Optional[Tuple[ParsingProgress, Tag]] =\

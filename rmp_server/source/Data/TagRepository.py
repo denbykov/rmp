@@ -192,3 +192,31 @@ class TagRepository:
         except sqlite3.OperationalError as ex:
             self.logger.error(LogContext.form(self) + " - " + str(ex))
             return make_da_response(error=ErrorCodes.UNKNOWN_ERROR)
+
+    def get_native_tag_for_file(
+            self,
+            file_id: int,
+            native_tag_sources: Tuple[int],
+            con: sqlite3.Connection) -> Tuple[DataError, Tag]:
+        try:
+            with con:
+                qlist = QueryList(
+                    native_tag_sources,
+                    lambda source_id: source_id).resolve()
+
+                query = \
+                    SELECT_TAG_FROM_TAG + \
+                    f"inner join TagState on TagState.id=Tag.stateId " \
+                    f"inner join TagSource on TagSource.id=Tag.sourceId " \
+                    f"where Tag.fileId in {qlist}"
+
+                rows = con.execute(query, (file_id,)).fetchall()
+
+                if not rows:
+                    return make_da_response(error=ErrorCodes.NO_SUCH_RESOURCE)
+                result = self.parse_tag(rows[0])
+
+                return make_da_response(result=result)
+        except sqlite3.OperationalError as ex:
+            self.logger.error(LogContext.form(self) + " - " + str(ex))
+            return make_da_response(error=ErrorCodes.UNKNOWN_ERROR)
