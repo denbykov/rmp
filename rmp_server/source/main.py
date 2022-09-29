@@ -13,7 +13,9 @@ import source.Business.TagManagement.ParsingManager as pm
 
 from source.Data.SeleniumBrowser import *
 from source.Data.RequestAgent import *
-from source.Presentation.TagParsing.WebParserFactory import *
+from source.Data.FileAccessor import *
+
+from source.Business.TagManagement.ParsingDirectorFactory import *
 
 import LoggerNames
 import sqlite3
@@ -50,12 +52,14 @@ class ServerApplication:
 
         fm.FileManager.init(
             DataAccessor(sqlite3.connect(DB_LOCATION)),
+            FileAccessor(),
             Path(self.config.get(Config.FILE_MANAGEMENT, Config.FILE_DIR)))
 
         parsing_manager: pm.ParsingManager = pm.ParsingManager(
-            WebParserFactory(
+            ParsingDirectorFactory(
                 SeleniumBrowser(("--headless", "--disable-web-security")),
-                RequestAgent()
+                RequestAgent(),
+                FileAccessor()
             )
         )
 

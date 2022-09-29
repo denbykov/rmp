@@ -55,3 +55,9 @@ class DataAccessorMock(IDataAccessor):
     def update_tag(self, tag: Tag) \
             -> Tuple[DataError, None]:
         pass
+
+    def get_native_tag_for_file(
+            self,
+            file_id: int,
+            native_tag_sources: Tuple[int]) -> Tuple[DataError, Tag]:
+        pass

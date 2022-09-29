@@ -6,9 +6,13 @@ from source.Business.Controllers.FileController import *
 
 
 class FileManagementHandler(AuthorizedHandler):
-    def __init__(self, data_accessor, secret: str):
+    def __init__(
+            self,
+            data_accessor: IDataAccessor,
+            file_accessor: IFileAccessor,
+            secret: str):
         super(FileManagementHandler, self).__init__(data_accessor, secret)
-        self.controller: FileController = FileController(data_accessor)
+        self.controller: FileController = FileController(data_accessor, file_accessor)
 
     def authorized_handle(self, request: AuthorizedHTTPRequest) -> HTTPResponse:
         splitted_path = request.path.split('/')

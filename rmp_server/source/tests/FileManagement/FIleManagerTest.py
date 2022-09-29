@@ -2,6 +2,7 @@ import unittest
 from unittest.mock import *
 
 from source.tests.DataAccessorMock import *
+from source.tests.FileAccessorMock import *
 from .DownloadingManagerMock import *
 
 from source.Data.utils import *
@@ -75,7 +76,8 @@ pending_file_2 = File(
 class FileManagerTest(unittest.TestCase):
     def setUp(self):
         self.data_accessor = DataAccessorMock()
-        self.file_manager = FileManager(self.data_accessor)
+        self.file_accessor = FileAccessorMock()
+        self.file_manager = FileManager(self.data_accessor, self.file_accessor)
         FileManager.downloading_manager = DownloadingManagerMock()
         FileManager.db_states_id_mapping = file_states
         FileManager.file_dir = Path("storage")
@@ -109,7 +111,7 @@ class FileManagerTest(unittest.TestCase):
 
         file_dir: Path = Path("storage")
 
-        self.file_manager.init(self.data_accessor, file_dir)
+        self.file_manager.init(self.data_accessor, self.file_accessor, file_dir)
 
         self.data_accessor.get_file_states.assert_called_once()
         self.data_accessor.get_files_by_state.assert_called_once_with(

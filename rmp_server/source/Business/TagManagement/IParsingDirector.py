@@ -8,7 +8,7 @@ import threading
 from typing import *
 
 
-class IWebParser(ABC):
+class IParsingDirector(ABC):
     @abstractmethod
     def parse(
             self,

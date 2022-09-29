@@ -3,12 +3,14 @@ import source.Business.FileManagement.FileManager as fm
 from source.Business.IDataAccessor import *
 
 from source.Business.Entities.APIError import *
+from source.Business.IFileAccessor import IFileAccessor
 
 
 class FileController:
-    def __init__(self, data_accessor: IDataAccessor):
+    def __init__(self, data_accessor: IDataAccessor, file_accessor: IFileAccessor):
         self.data_accessor: IDataAccessor = data_accessor
-        self.file_manager = fm.FileManager(data_accessor)
+        self.file_accessor: IFileAccessor = file_accessor
+        self.file_manager = fm.FileManager(data_accessor, file_accessor)
 
     def download_file(self, url: str) -> Union[APIError, File]:
         file = File(url=url, id=None, path=None, state=None)

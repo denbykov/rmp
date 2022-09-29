@@ -26,3 +26,7 @@ class URLParser:
         uid = re.search("be/.*", url).group()[3:]
         return FileSourceInfo(FileSource.YOUTUBE, uid)
 
+    @staticmethod
+    def parse_file_extension(url: str) -> str:
+        return url[url.rfind("."):]
+

@@ -1,5 +1,6 @@
 from .IParsingManager import *
-from .IWebParserFactory import *
+
+from .ParsingDirectorFactory import *
 
 import threading
 
@@ -14,14 +15,15 @@ import copy
 
 
 class ParsingManager(IParsingManager):
-    """Application must have only one instance of DownloadingManager!"""
+    """Application must have only one instance of ParsingManager!"""
 
-    def __init__(self, parser_factory: IWebParserFactory):
+    def __init__(self, parsing_director_factory: ParsingDirectorFactory):
         self.logger: logging.Logger = logging.getLogger(LoggerNames.BUSINESS)
         self.queue: queue.Queue = queue.Queue()
         self.progress_lock: threading.Lock = threading.Lock()
         self.active_tags_storage: Dict[int, Tuple[ParsingProgress, Tag]] = dict()
-        self.parser_factory: IWebParserFactory = parser_factory
+        self.director_factory: ParsingDirectorFactory = \
+            parsing_director_factory
 
     def run(self) -> None:
         self.logger.info("Starting parsing manager")
@@ -38,14 +40,14 @@ class ParsingManager(IParsingManager):
             primary_data = task[1]
 
             try:
-                parser: IWebParser = \
-                    manager.parser_factory.create_parser(tag.source.name)
+                director: IParsingDirector = \
+                    manager.director_factory.create(tag.source.name)
 
                 with manager.progress_lock:
                     manager.active_tags_storage[tag.id] = \
                         (ParsingProgress(TagStateName.PARSING), tag)
 
-                parser.parse(
+                director.parse(
                     tag,
                     primary_data,
                     manager.progress_lock,

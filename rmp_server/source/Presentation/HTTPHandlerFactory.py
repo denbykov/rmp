@@ -8,6 +8,7 @@ from .Handlers import *
 
 import source.LoggerNames as LoggerNames
 from source.Data.DataAccerssor import DataAccessor
+from source.Data.FileAccessor import FileAccessor
 
 
 DB_LOCATION = "rmp_server.db"
@@ -22,6 +23,7 @@ class HTTPHandlerFactory(IHTTPHandlerFactory):
         self.logger.info(f"{client[0]}:{client[1]}{path}")
 
         data_accessor = DataAccessor(sqlite3.connect(DB_LOCATION))
+        file_accessor = FileAccessor()
 
         if path == "/echo":
             return EchoHandler.EchoHandler(data_accessor, self.jwt_secret)
@@ -31,7 +33,7 @@ class HTTPHandlerFactory(IHTTPHandlerFactory):
             return LoginHandler.LoginHandler(data_accessor, self.jwt_secret)
         if path.startswith('/file-management/files'):
             return FileManagementHandler.FileManagementHandler(
-                data_accessor, self.jwt_secret)
+                data_accessor, file_accessor, self.jwt_secret)
         if path.startswith('/tag-management'):
             return TagManagementHandler.TagManagementHandler(
                 data_accessor, self.jwt_secret)

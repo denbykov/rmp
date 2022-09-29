@@ -8,6 +8,8 @@ import source.LoggerNames as LoggerNames
 
 from pathlib import Path
 
+from ..IFileAccessor import IFileAccessor
+
 
 class FileManager:
     db_states_id_mapping: Dict[FileStateName, int]
@@ -15,16 +17,17 @@ class FileManager:
     downloading_manager: IDownloadingManager = DownloadingManager()
     audio_dir: Path = "audio"
 
-    def __init__(self, data_accessor: IDataAccessor):
+    def __init__(self, data_accessor: IDataAccessor, file_accessor: IFileAccessor):
         self.data_accessor: IDataAccessor = data_accessor
+        self.file_accessor: IFileAccessor = file_accessor
         self.logger: logging.Logger = logging.getLogger(LoggerNames.BUSINESS)
 
     @classmethod
-    def init(cls, data_accessor: IDataAccessor, file_dir: Path):
+    def init(cls, data_accessor: IDataAccessor, file_accessor: IFileAccessor, file_dir: Path):
         logger: logging.Logger = logging.getLogger(LoggerNames.BUSINESS)
         logger.info("Initializing FileManager class")
 
-        manager = cls(data_accessor)
+        manager = cls(data_accessor, file_accessor)
         cls.db_states_id_mapping = manager._load_states_mapping()
         cls._init_dirs(file_dir)
 
@@ -36,6 +39,7 @@ class FileManager:
 
     @classmethod
     def _init_dirs(cls, file_dir: Path):
+        # ToDo: refactor directories creation and also update tests later
         logger: logging.Logger = logging.getLogger(LoggerNames.BUSINESS)
 
         cls.file_dir = file_dir
@@ -143,7 +147,6 @@ class FileManager:
         if error or file.state.name != FileStateName.READY:
             return DataError(False, ErrorCodes.NO_SUCH_RESOURCE), None
 
-        with open(file.path, "rb") as file_data:
-            data = file_data.read()
+        data = self.file_accessor.read_file(file.path)
 
         return error, data
