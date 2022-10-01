@@ -72,3 +72,6 @@ class DataAccessor(IDataAccessor):
             file_id,
             native_tag_sources,
             self.con)
+
+    def get_tags(self, tag_id: int) -> Tuple[DataError, List[Tag]]:
+        return self.tag_repository.get_tags(tag_id, self.con)

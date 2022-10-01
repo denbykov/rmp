@@ -84,3 +84,14 @@ class TagController:
             return APIError(error.code, "Bad argument")
         if error.code == ErrorCodes.RESOURCE_ALREADY_EXISTS:
             return APIError(error.code, "Tag already exists")
+
+    def get_tags(self, file_id: int) -> Union[APIError, List[Tag]]:
+        error, tags = self.data_accessor.get_tags(file_id)
+
+        if error and error.code == ErrorCodes.NO_SUCH_RESOURCE:
+            return APIError(error.code, "No such file")
+
+        if error:
+            return self._get_error_response(error)
+
+        return tags

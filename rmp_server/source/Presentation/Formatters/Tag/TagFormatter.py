@@ -20,3 +20,10 @@ class TagFormatter:
             "apic": str(tag.apic_path),
         }
 
+    @staticmethod
+    def format_list(tags: List[Tag]) -> List[Dict[str, Any]]:
+        result = list()
+        for tag in tags:
+            result.append(TagFormatter.format(tag))
+        return result
+

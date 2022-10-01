@@ -23,6 +23,10 @@ class TagManagementHandler(AuthorizedHandler):
             file_id = int(splitted_path[3])
             return self._parse_native_tag(file_id)
 
+        if path == "find-by-file" and request.method == HTTPMethod.GET:
+            file_id = int(splitted_path[3])
+            return self._get_tags(file_id)
+
         if path == "tags":
             tag_id = int(splitted_path[3])
             path = splitted_path[4]
@@ -34,8 +38,6 @@ class TagManagementHandler(AuthorizedHandler):
             APIError(ErrorCodes.NO_SUCH_RESOURCE, "Not found"))
 
     def _parse_native_tag(self, file_id: int) -> HTTPResponse:
-        url: str = ""
-
         result = self.controller.pase_native_tag(file_id)
 
         if isinstance(result, APIError):
@@ -44,8 +46,6 @@ class TagManagementHandler(AuthorizedHandler):
         return HTTPResponse(HTTPResponseCode.OK, TagFormatter.format(result))
 
     def _parse_tags(self, file_id: int, sources: str) -> HTTPResponse:
-        url: str = ""
-
         result = self.controller.pase_tags(file_id)
 
         if isinstance(result, APIError):
@@ -54,11 +54,17 @@ class TagManagementHandler(AuthorizedHandler):
         return HTTPResponse(HTTPResponseCode.OK, TagFormatter.format(result))
 
     def _get_tag_state(self, tag_id: int) -> HTTPResponse:
-        url: str = ""
-
         result = self.controller.get_tag_state(tag_id)
 
         if isinstance(result, APIError):
             return self.handle_api_error(result)
 
         return HTTPResponse(HTTPResponseCode.OK, TagStateFormatter.format(result))
+
+    def _get_tags(self, file_id: int) -> HTTPResponse:
+        result = self.controller.get_tags(file_id)
+
+        if isinstance(result, APIError):
+            return self.handle_api_error(result)
+
+        return HTTPResponse(HTTPResponseCode.OK, TagFormatter.format_list(result))
