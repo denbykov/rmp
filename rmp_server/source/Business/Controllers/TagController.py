@@ -1,4 +1,5 @@
 import source.Business.TagManagement.TagManager as tm
+from source.Business.Entities.Tag.TagMapping import TagMapping
 
 from source.Business.IDataAccessor import *
 from source.Business.IFileAccessor import IFileAccessor
@@ -116,3 +117,11 @@ class TagController:
         data = self.file_accessor.read_file(path)
 
         return data, extension
+
+    def create_tag_mapping(self, file_id: int) -> Union[APIError, TagMapping]:
+        error, mapping = self.tag_manager.create_tag_mapping(file_id)
+
+        if error:
+            return self._get_error_response(error)
+
+        return mapping

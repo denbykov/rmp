@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from typing import *
 
 from .Entities.DataError import *
+from .Entities.Tag.TagMapping import TagMapping
 from .Entities.UserCredentials import *
 from source.Business.Entities.File.File import *
 
@@ -84,4 +85,30 @@ class IDataAccessor(ABC):
 
     @abstractmethod
     def get_tags(self, tag_id: int) -> Tuple[DataError, List[Tag]]:
+        pass
+
+    @abstractmethod
+    def add_tag_mapping(self, mapping: TagMapping) \
+            -> Tuple[DataError, TagMapping]:
+        pass
+
+    @abstractmethod
+    def update_mapping(
+            self,
+            mapping: TagMapping) \
+            -> Tuple[DataError, None]:
+        pass
+
+    @abstractmethod
+    def get_mapping(
+            self,
+            mapping_id: int) \
+            -> Tuple[DataError, TagMapping]:
+        pass
+
+    @abstractmethod
+    def get_mapping_by_file(
+            self,
+            file_id: int) \
+            -> Tuple[DataError, TagMapping]:
         pass

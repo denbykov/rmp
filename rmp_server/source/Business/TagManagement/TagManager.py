@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import *
 
 from source.Business.IFileAccessor import IFileAccessor
+from ..Entities.Tag.TagMapping import TagMapping
 
 
 class TagManager:
@@ -119,7 +120,6 @@ class TagManager:
 
         try:
             tag.apic_path = self._create_native_apic_file_path(tag, file_source_info)
-            # Todo: check path correctness
         except RuntimeError:
             return DataError(True, ErrorCodes.BAD_ARGUMENT), tag
 
@@ -151,7 +151,6 @@ class TagManager:
         try:
             tag.apic_path = self._create_apic_file_path_from_native(
                 tag, native_tag.source, native_tag.apic_path)
-            # Todo: check path correctness
         except RuntimeError:
             return DataError(True, ErrorCodes.BAD_ARGUMENT), tag
 
@@ -239,3 +238,25 @@ class TagManager:
             self.parsing_manager.del_progress(tag.id)
 
             return error, state
+
+    def create_tag_mapping(self, file_id: int) -> Tuple[DataError, TagMapping]:
+        error, tag = self.data_accessor.get_native_tag_for_file(
+            file_id,
+            self._form_native_tag_source_ids())
+        if error:
+            return error, None
+
+        mapping: TagMapping = TagMapping(
+            id=0,
+            file_id=file_id,
+            name=tag.source,
+            artist=tag.source,
+            lyrics=tag.source,
+            year=tag.source,
+            apic=tag.source)
+
+        error, mapping = self.data_accessor.add_tag_mapping(mapping)
+        if error:
+            return error, None
+
+        return error, mapping

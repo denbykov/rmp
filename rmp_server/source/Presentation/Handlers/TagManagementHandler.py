@@ -4,6 +4,7 @@ from .AuthorizedHandler import *
 from source.Presentation.Formatters.Tag.TagFormatter import *
 from source.Business.Controllers.TagController import *
 from source.Presentation.Parsers.FileURLParser import FileURLParser
+from source.Presentation.Formatters.Tag.TagMappingFormatter import *
 
 
 class TagManagementHandler(AuthorizedHandler):
@@ -37,6 +38,24 @@ class TagManagementHandler(AuthorizedHandler):
 
             if path == "state" and request.method == HTTPMethod.GET:
                 return self._get_tag_state(tag_id)
+
+        if path == "tag-mappings":
+            path = splitted_path[3]
+
+            if path == "find-by-file" and request.method == HTTPMethod.GET:
+                file_id = int(splitted_path[3])
+                return self._get_tag_mapping_by_file(file_id)
+
+            if request.method == HTTPMethod.GET:
+                mapping_id = int(splitted_path[3])
+                return self._get_tag_mapping(mapping_id)
+
+            if request.method == HTTPMethod.POST:
+                file_id = int(splitted_path[3])
+                return self._create_tag_mapping(file_id)
+
+            if request.method == HTTPMethod.POST:
+                return self._update_tag_mapping(request)
 
         return self.handle_api_error(
             APIError(ErrorCodes.NO_SUCH_RESOURCE, "Not found"))
@@ -88,3 +107,20 @@ class TagManagementHandler(AuthorizedHandler):
             return self.handle_api_error(result)
 
         return HTTPResponse(HTTPResponseCode.OK, None, apic=result)
+
+    def _create_tag_mapping(self, file_id: int) -> HTTPResponse:
+        result = self.controller.create_tag_mapping(file_id)
+
+        if isinstance(result, APIError):
+            return self.handle_api_error(result)
+
+        return HTTPResponse(HTTPResponseCode.OK, TagMappingFormatter.format(result))
+
+    def _get_tag_mapping_by_file(self, file_id: int) -> HTTPResponse:
+        pass
+
+    def _get_tag_mapping(self, mapping_id: int) -> HTTPResponse:
+        pass
+
+    def _update_tag_mapping(self, request: AuthorizedHTTPRequest) -> HTTPResponse:
+        pass

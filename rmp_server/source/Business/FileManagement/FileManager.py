@@ -78,7 +78,6 @@ class FileManager:
     def download_file(self, file: File) -> Tuple[DataError, File]:
         try:
             file.path = self._create_file_path(file)
-            # Todo: check path correctness
         except RuntimeError:
             return DataError(True, ErrorCodes.BAD_ARGUMENT), file
 

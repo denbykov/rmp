@@ -2,14 +2,16 @@ from source.Business.IDataAccessor import *
 from .UserRepository import *
 from .FileRepository import *
 from .TagRepository import *
+from .TagMappingRepository import *
 
 
 class DataAccessor(IDataAccessor):
     def __init__(self, con):
         self.con = con
-        self.user_repository = UserRepository()
-        self.file_repository = FileRepository()
-        self.tag_repository = TagRepository()
+        self.user_repository: UserRepository = UserRepository()
+        self.file_repository: FileRepository = FileRepository()
+        self.tag_repository: TagRepository = TagRepository()
+        self.tag_mapping_repository: TagMappingRepository = TagMappingRepository()
 
     # user repo
     def get_password(self, login) -> Tuple[DataError, str]:
@@ -75,3 +77,25 @@ class DataAccessor(IDataAccessor):
 
     def get_tags(self, tag_id: int) -> Tuple[DataError, List[Tag]]:
         return self.tag_repository.get_tags(tag_id, self.con)
+
+    def add_tag_mapping(self, mapping: TagMapping) \
+            -> Tuple[DataError, TagMapping]:
+        return self.tag_mapping_repository.add_mapping(mapping, self.con)
+
+    def update_mapping(
+            self,
+            mapping: TagMapping) \
+            -> Tuple[DataError, None]:
+        return self.tag_mapping_repository.update_mapping(mapping, self.con)
+
+    def get_mapping(
+            self,
+            mapping_id: int) \
+            -> Tuple[DataError, TagMapping]:
+        return self.tag_mapping_repository.get_mapping(mapping_id, self.con)
+
+    def get_mapping_by_file(
+            self,
+            file_id: int) \
+            -> Tuple[DataError, TagMapping]:
+        return self.tag_mapping_repository.get_mapping_by_file(file_id, self.con)

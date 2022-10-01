@@ -208,7 +208,7 @@ class TagRepository:
                     SELECT_TAG_FROM_TAG + \
                     f"inner join TagState on TagState.id=Tag.stateId " \
                     f"inner join TagSource on TagSource.id=Tag.sourceId " \
-                    f"where Tag.fileId in {qlist}"
+                    f"where Tag.fileId=(?) and Tag.sourceId in {qlist}"
 
                 rows = con.execute(query, (file_id,)).fetchall()
 

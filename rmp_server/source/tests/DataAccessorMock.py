@@ -64,3 +64,25 @@ class DataAccessorMock(IDataAccessor):
 
     def get_tags(self, tag_id: int) -> Tuple[DataError, List[Tag]]:
         pass
+
+    def add_tag_mapping(self, mapping: TagMapping) \
+            -> Tuple[DataError, TagMapping]:
+        pass
+
+    def update_mapping(
+            self,
+            mapping: TagMapping) \
+            -> Tuple[DataError, None]:
+        pass
+
+    def get_mapping(
+            self,
+            mapping_id: int) \
+            -> Tuple[DataError, TagMapping]:
+        pass
+
+    def get_mapping_by_file(
+            self,
+            file_id: int) \
+            -> Tuple[DataError, TagMapping]:
+        pass
