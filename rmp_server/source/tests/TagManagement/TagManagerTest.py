@@ -2,6 +2,7 @@ import unittest
 from unittest.mock import *
 
 from source.tests.DataAccessorMock import *
+from source.tests.FileAccessorMock import FileAccessorMock
 from .ParsingManagerMock import *
 
 from source.Data.utils import *
@@ -119,12 +120,17 @@ class TagManagerTest(unittest.TestCase):
         self.data_accessor = DataAccessorMock()
         self.tag_manager = TagManager(self.data_accessor)
         self.parsing_manager = ParsingManagerMock()
+        self.file_accessor = FileAccessorMock()
         TagManager.parsing_manager = self.parsing_manager
         TagManager.db_states_id_mapping = tag_states
         TagManager.db_sources_id_mapping = tag_sources
         TagManager.file_dir = Path("storage")
 
     def test_init(self):
+        self.file_accessor.make_dir = create_autospec(
+            self.file_accessor.make_dir,
+            return_value=None)
+
         self.data_accessor.get_tag_states = \
             create_autospec(
                 self.data_accessor.get_tag_states,
@@ -166,7 +172,14 @@ class TagManagerTest(unittest.TestCase):
         self.tag_manager.init(
             self.parsing_manager,
             self.data_accessor,
+            self.file_accessor,
             file_dir)
+
+        self.file_accessor.make_dir.assert_has_calls(
+            [
+                call(file_dir),
+                call(file_dir / TagManager.apic_dir)
+            ])
 
         self.data_accessor.get_tag_states.assert_called_once()
         self.data_accessor.get_tag_sources.assert_called_once()
@@ -185,7 +198,7 @@ class TagManagerTest(unittest.TestCase):
         self.assertEqual(self.tag_manager.db_sources_id_mapping, tag_sources)
         self.assertEqual(self.tag_manager.file_dir, file_dir)
 
-    def test_(self):
+    def test_parse_native_tag(self):
         self.data_accessor.add_tag = \
             create_autospec(
                 self.data_accessor.add_tag,

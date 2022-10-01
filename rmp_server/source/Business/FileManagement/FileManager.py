@@ -8,7 +8,7 @@ import source.LoggerNames as LoggerNames
 
 from pathlib import Path
 
-from ..IFileAccessor import IFileAccessor
+from source.Business.IFileAccessor import IFileAccessor
 
 
 class FileManager:
@@ -23,13 +23,17 @@ class FileManager:
         self.logger: logging.Logger = logging.getLogger(LoggerNames.BUSINESS)
 
     @classmethod
-    def init(cls, data_accessor: IDataAccessor, file_accessor: IFileAccessor, file_dir: Path):
+    def init(
+            cls,
+            data_accessor: IDataAccessor,
+            file_accessor: IFileAccessor,
+            file_dir: Path):
         logger: logging.Logger = logging.getLogger(LoggerNames.BUSINESS)
         logger.info("Initializing FileManager class")
 
         manager = cls(data_accessor, file_accessor)
         cls.db_states_id_mapping = manager._load_states_mapping()
-        cls._init_dirs(file_dir)
+        cls._init_dirs(file_dir, file_accessor)
 
         cls.downloading_manager.run()
 
@@ -38,17 +42,14 @@ class FileManager:
         logger.info("Done initializing FileManager class")
 
     @classmethod
-    def _init_dirs(cls, file_dir: Path):
-        # ToDo: refactor directories creation and also update tests later
+    def _init_dirs(cls, file_dir: Path, file_accessor: IFileAccessor):
         logger: logging.Logger = logging.getLogger(LoggerNames.BUSINESS)
 
         cls.file_dir = file_dir
 
         try:
-            if not file_dir.is_dir():
-                file_dir.mkdir()
-            if not (file_dir / cls.audio_dir).is_dir():
-                (file_dir / cls.audio_dir).mkdir()
+            file_accessor.make_dir(file_dir)
+            file_accessor.make_dir(file_dir / cls.audio_dir)
         except Exception as ex:
             logger.error(f"Failed to create dirs, reason: {ex}")
 

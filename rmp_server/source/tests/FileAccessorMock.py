@@ -7,3 +7,6 @@ class FileAccessorMock(IFileAccessor):
 
     def write_file(self, file: pathlib.Path, data: bytes):
         pass
+
+    def make_dir(self, dir: pathlib.Path):
+        pass

@@ -13,6 +13,8 @@ from pathlib import Path
 
 from typing import *
 
+from source.Business.IFileAccessor import IFileAccessor
+
 
 class TagManager:
     db_sources_id_mapping: Dict[TagSourceName, int]
@@ -27,8 +29,11 @@ class TagManager:
 
     @classmethod
     def init(
-            cls, parsing_manager: IParsingManager,
-            data_accessor: IDataAccessor, file_dir: Path):
+            cls,
+            parsing_manager: IParsingManager,
+            data_accessor: IDataAccessor,
+            file_accessor: IFileAccessor,
+            file_dir: Path):
         cls.parsing_manager = parsing_manager
 
         logger: logging.Logger = logging.getLogger(LoggerNames.BUSINESS)
@@ -37,7 +42,7 @@ class TagManager:
         manager = cls(data_accessor)
         cls.db_sources_id_mapping = manager._load_tag_sources_mapping()
         cls.db_states_id_mapping = manager._load_states_mapping()
-        cls._init_dirs(file_dir)
+        cls._init_dirs(file_dir, file_accessor)
 
         cls.parsing_manager.run()
 
@@ -46,16 +51,14 @@ class TagManager:
         logger.info(f"Done initializing {cls.__name__} class")
 
     @classmethod
-    def _init_dirs(cls, file_dir: Path):
+    def _init_dirs(cls, file_dir: Path, file_accessor: IFileAccessor):
         logger: logging.Logger = logging.getLogger(LoggerNames.BUSINESS)
 
         cls.file_dir = file_dir
 
         try:
-            if not file_dir.is_dir():
-                file_dir.mkdir()
-            if not (file_dir / cls.apic_dir).is_dir():
-                (file_dir / cls.apic_dir).mkdir()
+            file_accessor.make_dir(file_dir)
+            file_accessor.make_dir(file_dir / cls.apic_dir)
         except Exception as ex:
             logger.error(f"Failed to create dirs, reason: {ex}")
 

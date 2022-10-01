@@ -96,6 +96,10 @@ class FileManagerTest(unittest.TestCase):
                     pending_file_1,
                     pending_file_2]))
 
+        self.file_accessor.make_dir = create_autospec(
+                self.file_accessor.make_dir,
+                return_value=None)
+
         FileManager.downloading_manager.run = \
             create_autospec(
                 FileManager.downloading_manager.run,
@@ -112,6 +116,12 @@ class FileManagerTest(unittest.TestCase):
         file_dir: Path = Path("storage")
 
         self.file_manager.init(self.data_accessor, self.file_accessor, file_dir)
+
+        self.file_accessor.make_dir.assert_has_calls(
+            [
+                call(file_dir),
+                call(file_dir / FileManager.audio_dir)
+            ])
 
         self.data_accessor.get_file_states.assert_called_once()
         self.data_accessor.get_files_by_state.assert_called_once_with(

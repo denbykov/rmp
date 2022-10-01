@@ -12,3 +12,7 @@ class FileAccessor(IFileAccessor):
     def write_file(self, file: pathlib.Path, data: bytes):
         with open(file, "wb") as file_obj:
             file_obj.write(data)
+
+    def make_dir(self, dir: pathlib.Path):
+        if not dir.is_dir():
+            dir.mkdir()

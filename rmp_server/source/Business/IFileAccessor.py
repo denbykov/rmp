@@ -11,3 +11,7 @@ class IFileAccessor(ABC):
     @abstractmethod
     def write_file(self, file: pathlib.Path, data: bytes):
         pass
+
+    @abstractmethod
+    def make_dir(self, dir: pathlib.Path):
+        pass

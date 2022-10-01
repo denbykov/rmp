@@ -66,6 +66,7 @@ class ServerApplication:
         tm.TagManager.init(
             parsing_manager,
             DataAccessor(sqlite3.connect(DB_LOCATION)),
+            FileAccessor(),
             Path(self.config.get(Config.FILE_MANAGEMENT, Config.FILE_DIR))
         )
 
