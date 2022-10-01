@@ -10,19 +10,19 @@ from .utils import *
 
 SELECT_TAG_MAPPING_FROM_TAG_MAPPING: str = \
     "select " \
-    "tm.id," \
-    "tm.fileId," \
-    "ts_name.id, ts_name.name," \
-    "ts_artist.id, ts_artist.name," \
-    "ts_lyrics.id, ts_lyrics.name," \
-    "ts_year.id, ts_year.name," \
-    "ts_apic.id, ts_apic.name," \
-    "from TagMapping tm" \
-    "inner join TagSource ts_name on ts_name.id = tm.name" \
-    "inner join TagSource ts_artist on ts_artist.id = tm.artist" \
-    "inner join TagSource ts_lyrics on ts_lyrics.id = tm.lyrics" \
-    "inner join TagSource ts_year on ts_year.id = tm.year" \
-    "inner join TagSource ts_apic on ts_apic.id = tm.apic"
+    "tm.id, " \
+    "tm.fileId, " \
+    "ts_name.id, ts_name.name, " \
+    "ts_artist.id, ts_artist.name, " \
+    "ts_lyrics.id, ts_lyrics.name, " \
+    "ts_year.id, ts_year.name, " \
+    "ts_apic.id, ts_apic.name " \
+    "from TagMapping tm " \
+    "inner join TagSource ts_name on ts_name.id = tm.name " \
+    "inner join TagSource ts_artist on ts_artist.id = tm.artist " \
+    "inner join TagSource ts_lyrics on ts_lyrics.id = tm.lyrics " \
+    "inner join TagSource ts_year on ts_year.id = tm.year " \
+    "inner join TagSource ts_apic on ts_apic.id = tm.apic "
 
 
 class TagMappingRepository:
@@ -33,7 +33,7 @@ class TagMappingRepository:
     def parse_tag_source(row, idx: int) -> TagSource:
         return TagSource(
             id=row[idx],
-            name=row[idx + 1]
+            name=TagSourceName(row[idx + 1])
         )
 
     @staticmethod
@@ -112,13 +112,13 @@ class TagMappingRepository:
             with con:
                 query = \
                     SELECT_TAG_MAPPING_FROM_TAG_MAPPING + \
-                    "where TagMapping.id = (?)"
+                    "where tm.id = (?)"
 
                 rows = con.execute(query, (mapping_id,)).fetchall()
 
                 if not rows:
                     return make_da_response(error=ErrorCodes.NO_SUCH_RESOURCE)
-                result = self.parse_tag_mapping(rows)
+                result = self.parse_tag_mapping(rows[0])
 
                 return make_da_response(result=result)
         except sqlite3.OperationalError as ex:
@@ -134,13 +134,13 @@ class TagMappingRepository:
             with con:
                 query = \
                     SELECT_TAG_MAPPING_FROM_TAG_MAPPING + \
-                    "where TagMapping.fileId = (?)"
+                    "where tm.fileId = (?)"
 
                 rows = con.execute(query, (file_id,)).fetchall()
 
                 if not rows:
                     return make_da_response(error=ErrorCodes.NO_SUCH_RESOURCE)
-                result = self.parse_tag_mapping(rows)
+                result = self.parse_tag_mapping(rows[0])
 
                 return make_da_response(result=result)
         except sqlite3.OperationalError as ex:

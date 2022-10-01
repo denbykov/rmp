@@ -82,19 +82,19 @@ class DataAccessor(IDataAccessor):
             -> Tuple[DataError, TagMapping]:
         return self.tag_mapping_repository.add_mapping(mapping, self.con)
 
-    def update_mapping(
+    def update_tag_mapping(
             self,
             mapping: TagMapping) \
             -> Tuple[DataError, None]:
         return self.tag_mapping_repository.update_mapping(mapping, self.con)
 
-    def get_mapping(
+    def get_tag_mapping(
             self,
             mapping_id: int) \
             -> Tuple[DataError, TagMapping]:
         return self.tag_mapping_repository.get_mapping(mapping_id, self.con)
 
-    def get_mapping_by_file(
+    def get_tag_mapping_by_file(
             self,
             file_id: int) \
             -> Tuple[DataError, TagMapping]:

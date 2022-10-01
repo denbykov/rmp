@@ -93,21 +93,21 @@ class IDataAccessor(ABC):
         pass
 
     @abstractmethod
-    def update_mapping(
+    def update_tag_mapping(
             self,
             mapping: TagMapping) \
             -> Tuple[DataError, None]:
         pass
 
     @abstractmethod
-    def get_mapping(
+    def get_tag_mapping(
             self,
             mapping_id: int) \
             -> Tuple[DataError, TagMapping]:
         pass
 
     @abstractmethod
-    def get_mapping_by_file(
+    def get_tag_mapping_by_file(
             self,
             file_id: int) \
             -> Tuple[DataError, TagMapping]:

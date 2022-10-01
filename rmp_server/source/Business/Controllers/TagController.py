@@ -88,6 +88,12 @@ class TagController:
         if error.code == ErrorCodes.RESOURCE_ALREADY_EXISTS:
             return APIError(error.code, "Tag already exists")
 
+    @staticmethod
+    def _get_tag_mapping_error_response(error: DataError) -> APIError:
+        if error.code == ErrorCodes.NO_SUCH_RESOURCE:
+            return APIError(error.code, "No such tag mapping")
+        return TagController._get_error_response(error)
+
     def get_tags(self, file_id: int) -> Union[APIError, List[Tag]]:
         error, tags = self.data_accessor.get_tags(file_id)
 
@@ -123,5 +129,21 @@ class TagController:
 
         if error:
             return self._get_error_response(error)
+
+        return mapping
+
+    def get_tag_mapping(self, mapping_id: int) -> Union[APIError, TagMapping]:
+        error, mapping = self.data_accessor.get_tag_mapping(mapping_id)
+
+        if error:
+            return self._get_tag_mapping_error_response(error)
+
+        return mapping
+
+    def get_tag_mapping_by_file(self, file_id: int) -> Union[APIError, TagMapping]:
+        error, mapping = self.data_accessor.get_tag_mapping_by_file(file_id)
+
+        if error:
+            return self._get_tag_mapping_error_response(error)
 
         return mapping

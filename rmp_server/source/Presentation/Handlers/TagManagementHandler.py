@@ -43,7 +43,7 @@ class TagManagementHandler(AuthorizedHandler):
             path = splitted_path[3]
 
             if path == "find-by-file" and request.method == HTTPMethod.GET:
-                file_id = int(splitted_path[3])
+                file_id = int(splitted_path[4])
                 return self._get_tag_mapping_by_file(file_id)
 
             if request.method == HTTPMethod.GET:
@@ -116,11 +116,21 @@ class TagManagementHandler(AuthorizedHandler):
 
         return HTTPResponse(HTTPResponseCode.OK, TagMappingFormatter.format(result))
 
-    def _get_tag_mapping_by_file(self, file_id: int) -> HTTPResponse:
-        pass
-
     def _get_tag_mapping(self, mapping_id: int) -> HTTPResponse:
-        pass
+        result = self.controller.get_tag_mapping(mapping_id)
+
+        if isinstance(result, APIError):
+            return self.handle_api_error(result)
+
+        return HTTPResponse(HTTPResponseCode.OK, TagMappingFormatter.format(result))
+
+    def _get_tag_mapping_by_file(self, file_id: int) -> HTTPResponse:
+        result = self.controller.get_tag_mapping_by_file(file_id)
+
+        if isinstance(result, APIError):
+            return self.handle_api_error(result)
+
+        return HTTPResponse(HTTPResponseCode.OK, TagMappingFormatter.format(result))
 
     def _update_tag_mapping(self, request: AuthorizedHTTPRequest) -> HTTPResponse:
         pass
