@@ -130,4 +130,27 @@ try:
 except sqlite3.OperationalError as ex:
     print(ex)
 
+print("creating table TagMapping", end=": ")
+try:
+    cur.execute(
+        '''CREATE TABLE TagMapping
+           (id integer primary key autoincrement,
+            fileId integer unique not null,
+            name integer not null,
+            artist integer not null,
+            lyrics integer not null,
+            year integer not null,
+            apic integer not null,
+            foreign key(fileId) references File(id),
+            foreign key(name) references TagSource(id),
+            foreign key(artist) references TagSource(id),
+            foreign key(lyrics) references TagSource(id),
+            foreign key(year) references TagSource(id),
+            foreign key(apic) references TagSource(id))''')
+
+    con.commit()
+    print("Done")
+except sqlite3.OperationalError as ex:
+    print(ex)
+
 con.close()
