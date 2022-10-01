@@ -1,6 +1,7 @@
 import source.Business.TagManagement.TagManager as tm
 
 from source.Business.IDataAccessor import *
+from source.Business.IFileAccessor import IFileAccessor
 
 from source.Business.Entities.APIError import *
 
@@ -8,8 +9,9 @@ from source.Presentation.Parsers.URLParser import *
 
 
 class TagController:
-    def __init__(self, data_accessor: IDataAccessor):
+    def __init__(self, data_accessor: IDataAccessor, file_accessor: IFileAccessor):
         self.data_accessor: IDataAccessor = data_accessor
+        self.file_accessor: IFileAccessor = file_accessor
         self.tag_manager = tm.TagManager(data_accessor)
 
     def pase_native_tag(self, file_id: int) -> Union[APIError, Tag]:
@@ -95,3 +97,22 @@ class TagController:
             return self._get_error_response(error)
 
         return tags
+
+    def get_apic(self, url: str) -> Union[APIError, Tuple[bytes, str]]:
+        path: Path = Path(url)
+        filename: str = path.name
+        extension: str = ""
+        try:
+            extension = path.name.split(".")[1]
+        except IndexError:
+            if not self.file_accessor.exists(path):
+                return APIError(ErrorCodes.BAD_ARGUMENT, "Bad argument")
+
+        path = self.tag_manager.file_dir / self.tag_manager.apic_dir / filename
+
+        if not self.file_accessor.exists(path):
+            return APIError(ErrorCodes.NO_SUCH_RESOURCE, "No such file")
+
+        data = self.file_accessor.read_file(path)
+
+        return data, extension

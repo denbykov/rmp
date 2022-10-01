@@ -70,7 +70,9 @@ class HTTPHandlerAdapter(BaseHTTPRequestHandler):
             content_type, options = cgi.parse_header(content_type_header)
 
             if content_type == "application/json":
-                json_payload = json.loads(self.rfile.read(length).decode())
+                file: str = self.rfile.read(length).decode()
+                file = file.replace("\\", "/")
+                json_payload = json.loads(file)
 
         authorization_header = self.headers.get("Authorization")
 
@@ -83,6 +85,12 @@ class HTTPHandlerAdapter(BaseHTTPRequestHandler):
         elif response.audio:
             self.send_file(
                 response.audio, response.response_code.value, "audio", "mp3")
+        elif response.apic:
+            self.send_file(
+                response.apic[0],
+                response.response_code.value,
+                "image",
+                response.apic[1])
         else:
             self.send_response_only(response.response_code.value)
             self.end_headers()

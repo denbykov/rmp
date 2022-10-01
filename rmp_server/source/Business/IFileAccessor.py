@@ -15,3 +15,7 @@ class IFileAccessor(ABC):
     @abstractmethod
     def make_dir(self, dir: pathlib.Path):
         pass
+
+    @abstractmethod
+    def exists(self, path: pathlib.Path):
+        pass

@@ -16,3 +16,6 @@ class FileAccessor(IFileAccessor):
     def make_dir(self, dir: pathlib.Path):
         if not dir.is_dir():
             dir.mkdir()
+
+    def exists(self, path: pathlib.Path):
+        return path.exists()

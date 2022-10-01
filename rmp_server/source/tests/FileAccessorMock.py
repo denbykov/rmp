@@ -10,3 +10,6 @@ class FileAccessorMock(IFileAccessor):
 
     def make_dir(self, dir: pathlib.Path):
         pass
+
+    def exists(self, path: pathlib.Path):
+        pass
