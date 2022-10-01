@@ -6,4 +6,6 @@ from typing import *
 class TagSourceFormatter:
     @staticmethod
     def format(source: TagSource) -> Dict[str, Any]:
-        return {"name": source.name.value}
+        return {
+            "id": source.id,
+            "name": source.name.value}

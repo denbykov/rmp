@@ -1,6 +1,6 @@
 import sqlite3
 
-from source.Business.Entities.Tag.Tag import *
+from source.Business.Entities.Tag.TagMapping import *
 
 import logging
 import source.LoggerNames as LoggerNames
@@ -8,163 +8,93 @@ from source.LogContext import *
 
 from .utils import *
 
-SELECT_TAG_FROM_TAG: str =\
+SELECT_TAG_MAPPING_FROM_TAG_MAPPING: str = \
     "select " \
-    "Tag.id," \
-    "Tag.fileId," \
-    "TagSource.id,TagSource.name," \
-    "TagState.id,TagState.name," \
-    "Tag.name, Tag.artist, Tag.lyrics, Tag.year, Tag.apicPath from Tag "
+    "tm.id," \
+    "tm.fileId," \
+    "ts_name.id, ts_name.name," \
+    "ts_artist.id, ts_artist.name," \
+    "ts_lyrics.id, ts_lyrics.name," \
+    "ts_year.id, ts_year.name," \
+    "ts_apic.id, ts_apic.name," \
+    "from TagMapping tm" \
+    "inner join TagSource ts_name on ts_name.id = tm.name" \
+    "inner join TagSource ts_artist on ts_artist.id = tm.artist" \
+    "inner join TagSource ts_lyrics on ts_lyrics.id = tm.lyrics" \
+    "inner join TagSource ts_year on ts_year.id = tm.year" \
+    "inner join TagSource ts_apic on ts_apic.id = tm.apic"
 
 
-class TagRepository:
+class TagMappingRepository:
     def __init__(self):
         self.logger: logging.Logger = logging.getLogger(LoggerNames.DATA)
 
     @staticmethod
-    def parse_tag(row) -> Tag:
-        return Tag(
-            id=row[0],
-            file_id=row[1],
-            source=TagSource(
-                id=row[2],
-                name=TagSourceName(row[3])),
-            state=TagState(
-                id=row[4],
-                name=TagStateName(row[5])),
-            name=row[6],
-            artist=row[7],
-            lyrics=row[8],
-            year=row[9],
-            apic_path=Path(row[10])
+    def parse_tag_source(row, idx: int) -> TagSource:
+        return TagSource(
+            id=row[idx],
+            name=row[idx + 1]
         )
 
-    def get_tag_sources(self, con: sqlite3.Connection) \
-            -> Tuple[DataError, Dict[TagSourceName, int]]:
-        try:
-            with con:
-                rows = con.execute("select * from TagSource").fetchall()
-                if rows:
-                    result = dict()
+    @staticmethod
+    def parse_tag_mapping(row) -> TagMapping:
+        return TagMapping(
+            id=row[0],
+            file_id=row[1],
+            name=TagMappingRepository.parse_tag_source(row, 2),
+            artist=TagMappingRepository.parse_tag_source(row, 4),
+            lyrics=TagMappingRepository.parse_tag_source(row, 6),
+            year=TagMappingRepository.parse_tag_source(row, 8),
+            apic=TagMappingRepository.parse_tag_source(row, 10)
+        )
 
-                    for row in rows:
-                        result[TagSourceName(row[1])] = row[0]
-
-                    return make_da_response(result=result)
-                else:
-                    return make_da_response(error=ErrorCodes.NO_SUCH_RESOURCE)
-        except sqlite3.OperationalError as ex:
-            self.logger.error(LogContext.form(self) + " - " + str(ex))
-            return make_da_response(error=ErrorCodes.UNKNOWN_ERROR)
-
-    def get_tag_states(self, con: sqlite3.Connection) \
-            -> Tuple[DataError, Dict[TagStateName, int]]:
-        try:
-            with con:
-                rows = con.execute("select * from TagState").fetchall()
-                if rows:
-                    result = dict()
-
-                    for row in rows:
-                        result[TagStateName(row[1])] = row[0]
-
-                    return make_da_response(result=result)
-                else:
-                    return make_da_response(error=ErrorCodes.NO_SUCH_RESOURCE)
-        except sqlite3.OperationalError as ex:
-            self.logger.error(LogContext.form(self) + " - " + str(ex))
-            return make_da_response(error=ErrorCodes.UNKNOWN_ERROR)
-
-    def add_tag(self, tag: Tag, con: sqlite3.Connection) \
-            -> Tuple[DataError, Tag]:
+    def add_mapping(self, mapping: TagMapping, con: sqlite3.Connection) \
+            -> Tuple[DataError, TagMapping]:
         try:
             with con:
                 cursor: sqlite3.Cursor = con.execute(
                     "insert into "
-                    "Tag(fileId,sourceId,stateId,name,artist,lyrics,year,apicPath) "
-                    "values ((?),(?),(?),(?),(?),(?),(?),(?))",
-                    (tag.file_id, tag.source.id, tag.state.id, tag.name,
-                     tag.artist, tag.lyrics, tag.year, str(tag.apic_path)))
+                    "TagMapping(fileId,name,artist,lyrics,year,apic) "
+                    "values ((?),(?),(?),(?),(?),(?))",
+                    (mapping.file_id, mapping.name.id, mapping.artist.id,
+                     mapping.lyrics.id, mapping.year.id, mapping.apic.id))
                 con.commit()
 
-                tag.id = cursor.lastrowid
+                mapping.id = cursor.lastrowid
 
-                return make_da_response(result=tag)
+                return make_da_response(result=mapping)
         except sqlite3.IntegrityError as ex:
             return make_da_response(error=ErrorCodes.RESOURCE_ALREADY_EXISTS)
         except sqlite3.OperationalError as ex:
             self.logger.error(LogContext.form(self) + " - " + str(ex))
             return make_da_response(error=ErrorCodes.UNKNOWN_ERROR)
 
-    def get_tags_by_state(self, states: Tuple[TagStateName, ...], con: sqlite3.Connection) \
-            -> Tuple[DataError, List[Tag]]:
-        try:
-            if len(states) == 0:
-                return make_da_response(error=ErrorCodes.UNEXPECTED_ARGUMENT)
-
-            qlist = QueryList(states, lambda state: state.value).resolve()
-
-            query = \
-                SELECT_TAG_FROM_TAG + \
-                "inner join TagState on TagState.id=Tag.stateId " \
-                "inner join TagSource on TagSource.id=Tag.sourceId " \
-                f"where TagState.name in " \
-                f"{qlist}"
-
-            self.logger.info(query)
-
-            with con:
-                rows = con.execute(query).fetchall()
-                result = list()
-
-                for row in rows:
-                    tag = self.parse_tag(row)
-
-                    result.append(tag)
-
-                return make_da_response(result=result)
-        except sqlite3.OperationalError as ex:
-            self.logger.error(LogContext.form(self) + " - " + str(ex))
-            return make_da_response(error=ErrorCodes.UNKNOWN_ERROR)
-
-    def update_tag_state(self, tag_id: int, state: TagState, con: sqlite3.Connection) \
+    def update_mapping(
+            self,
+            mapping: TagMapping,
+            con: sqlite3.Connection) \
             -> Tuple[DataError, None]:
         try:
             query = \
-                "update Tag " \
-                "set stateId = (?)" \
-                f"where id = (?)"
-
-            with con:
-                con.execute(query, (state.id, tag_id))
-                con.commit()
-                return make_da_response(result=None)
-        except sqlite3.IntegrityError as ex:
-            return make_da_response(error=ErrorCodes.NO_SUCH_RESOURCE)
-        except sqlite3.OperationalError as ex:
-            self.logger.error(LogContext.form(self) + " - " + str(ex))
-            return make_da_response(error=ErrorCodes.UNKNOWN_ERROR)
-
-    def update_tag(self, tag: Tag, con: sqlite3.Connection) \
-            -> Tuple[DataError, None]:
-        try:
-            query = \
-                "update Tag " \
-                "set fileId = (?)," \
-                " sourceId = (?)," \
-                " stateId = (?)," \
+                "update TagMapping" \
+                " set fileId = (?)," \
                 " name = (?)," \
                 " artist = (?)," \
                 " lyrics = (?)," \
                 " year = (?)," \
-                " apicPath = (?)" \
+                " apic = (?)" \
                 f" where id = (?)"
 
             with con:
                 con.execute(
                     query,
-                    (tag.file_id, tag.source.id, tag.state.id, tag.name,
-                     tag.artist, tag.lyrics, tag.year, str(tag.apic_path), tag.id))
+                    (mapping.file_id,
+                     mapping.name.id,
+                     mapping.artist.id,
+                     mapping.lyrics.id,
+                     mapping.year.id,
+                     mapping.apic.id,
+                     mapping.id))
                 con.commit()
                 return make_da_response(result=None)
         except sqlite3.IntegrityError as ex:
@@ -173,73 +103,44 @@ class TagRepository:
             self.logger.error(LogContext.form(self) + " - " + str(ex))
             return make_da_response(error=ErrorCodes.UNKNOWN_ERROR)
 
-    def get_tag(self, tag_id: int, con: sqlite3.Connection) -> Tuple[DataError, Tag]:
+    def get_mapping(
+            self,
+            mapping_id: int,
+            con: sqlite3.Connection) \
+            -> Tuple[DataError, TagMapping]:
         try:
             with con:
                 query = \
-                    SELECT_TAG_FROM_TAG + \
-                    "inner join TagState on TagState.id=Tag.stateId " \
-                    "inner join TagSource on TagSource.id=Tag.sourceId " \
-                    "where Tag.id = (?)"
+                    SELECT_TAG_MAPPING_FROM_TAG_MAPPING + \
+                    "where TagMapping.id = (?)"
 
-                rows = con.execute(query, (tag_id,)).fetchall()
+                rows = con.execute(query, (mapping_id,)).fetchall()
 
                 if not rows:
                     return make_da_response(error=ErrorCodes.NO_SUCH_RESOURCE)
-                result = self.parse_tag(rows[0])
+                result = self.parse_tag_mapping(rows)
 
                 return make_da_response(result=result)
         except sqlite3.OperationalError as ex:
             self.logger.error(LogContext.form(self) + " - " + str(ex))
             return make_da_response(error=ErrorCodes.UNKNOWN_ERROR)
 
-    def get_native_tag_for_file(
+    def get_mapping_by_file(
             self,
             file_id: int,
-            native_tag_sources: Tuple[int],
-            con: sqlite3.Connection) -> Tuple[DataError, Tag]:
+            con: sqlite3.Connection) \
+            -> Tuple[DataError, TagMapping]:
         try:
             with con:
-                qlist = QueryList(
-                    native_tag_sources,
-                    lambda source_id: source_id).resolve()
-
                 query = \
-                    SELECT_TAG_FROM_TAG + \
-                    f"inner join TagState on TagState.id=Tag.stateId " \
-                    f"inner join TagSource on TagSource.id=Tag.sourceId " \
-                    f"where Tag.fileId in {qlist}"
+                    SELECT_TAG_MAPPING_FROM_TAG_MAPPING + \
+                    "where TagMapping.fileId = (?)"
 
                 rows = con.execute(query, (file_id,)).fetchall()
 
                 if not rows:
                     return make_da_response(error=ErrorCodes.NO_SUCH_RESOURCE)
-                result = self.parse_tag(rows[0])
-
-                return make_da_response(result=result)
-        except sqlite3.OperationalError as ex:
-            self.logger.error(LogContext.form(self) + " - " + str(ex))
-            return make_da_response(error=ErrorCodes.UNKNOWN_ERROR)
-
-    def get_tags(
-            self,
-            tag_id: int,
-            con: sqlite3.Connection) -> Tuple[DataError, List[Tag]]:
-        try:
-            with con:
-                query = \
-                    SELECT_TAG_FROM_TAG + \
-                    "inner join TagState on TagState.id=Tag.stateId " \
-                    "inner join TagSource on TagSource.id=Tag.sourceId " \
-                    "where Tag.fileId = (?)"
-
-                rows = con.execute(query, (tag_id,)).fetchall()
-
-                if not rows:
-                    return make_da_response(error=ErrorCodes.NO_SUCH_RESOURCE)
-                result = list()
-                for row in rows:
-                    result.append(self.parse_tag(row))
+                result = self.parse_tag_mapping(rows)
 
                 return make_da_response(result=result)
         except sqlite3.OperationalError as ex:
