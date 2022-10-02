@@ -147,3 +147,11 @@ class TagController:
             return self._get_tag_mapping_error_response(error)
 
         return mapping
+
+    def update_tag_mapping(self, mapping: TagMapping) -> Union[APIError, None]:
+        error, unused = self.data_accessor.update_tag_mapping(mapping)
+
+        if error:
+            return self._get_tag_mapping_error_response(error)
+
+        return None

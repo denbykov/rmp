@@ -5,6 +5,7 @@ from source.Presentation.Formatters.Tag.TagFormatter import *
 from source.Business.Controllers.TagController import *
 from source.Presentation.Parsers.FileURLParser import FileURLParser
 from source.Presentation.Formatters.Tag.TagMappingFormatter import *
+from source.Presentation.Parsers.Tag.TagMappingParser import TagMappingParser
 
 
 class TagManagementHandler(AuthorizedHandler):
@@ -40,7 +41,11 @@ class TagManagementHandler(AuthorizedHandler):
                 return self._get_tag_state(tag_id)
 
         if path == "tag-mappings":
-            path = splitted_path[3]
+            path = ""
+            try:
+                path = splitted_path[3]
+            except IndexError:
+                pass
 
             if path == "find-by-file" and request.method == HTTPMethod.GET:
                 file_id = int(splitted_path[4])
@@ -50,12 +55,12 @@ class TagManagementHandler(AuthorizedHandler):
                 mapping_id = int(splitted_path[3])
                 return self._get_tag_mapping(mapping_id)
 
+            if request.method == HTTPMethod.PUT:
+                return self._update_tag_mapping(request)
+
             if request.method == HTTPMethod.POST:
                 file_id = int(splitted_path[3])
                 return self._create_tag_mapping(file_id)
-
-            if request.method == HTTPMethod.POST:
-                return self._update_tag_mapping(request)
 
         return self.handle_api_error(
             APIError(ErrorCodes.NO_SUCH_RESOURCE, "Not found"))
@@ -133,4 +138,18 @@ class TagManagementHandler(AuthorizedHandler):
         return HTTPResponse(HTTPResponseCode.OK, TagMappingFormatter.format(result))
 
     def _update_tag_mapping(self, request: AuthorizedHTTPRequest) -> HTTPResponse:
-        pass
+        mapping = None
+        try:
+            mapping = TagMappingParser.parse(request.json_payload)
+        except KeyError as ex:
+            return self.handle_api_error(
+                APIError(
+                    ErrorCodes.BAD_ARGUMENT,
+                    "Failed to parse request body"))
+
+        result = self.controller.update_tag_mapping(mapping)
+
+        if isinstance(result, APIError):
+            return self.handle_api_error(result)
+
+        return HTTPResponse(HTTPResponseCode.OK, None)
