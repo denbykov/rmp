@@ -8,7 +8,7 @@ from .DownloadingManagerMock import *
 from source.Data.utils import *
 
 from source.Business.FileManagement.FileManager import FileManager
-from source.Presentation.Parsers.URLParser import *
+from source.Business.URLParser import *
 
 file_states = {
     FileStateName.ERROR: 1,

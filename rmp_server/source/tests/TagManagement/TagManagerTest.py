@@ -8,7 +8,7 @@ from .ParsingManagerMock import *
 from source.Data.utils import *
 
 from source.Business.TagManagement.TagManager import TagManager
-from source.Presentation.Parsers.URLParser import *
+from source.Business.URLParser import *
 
 tag_states = {
     TagStateName.ERROR: 1,

@@ -2,6 +2,8 @@ import pathlib
 from abc import ABC, abstractmethod
 from typing import *
 
+from source.Business.Entities.Tag.Tag import Tag
+
 
 class IFileAccessor(ABC):
     @abstractmethod
@@ -18,4 +20,9 @@ class IFileAccessor(ABC):
 
     @abstractmethod
     def exists(self, path: pathlib.Path):
+        pass
+
+    @abstractmethod
+    def apply_tag(self, data: bytes, tag: Tag, image: Optional[bytes])\
+            -> bytes:
         pass

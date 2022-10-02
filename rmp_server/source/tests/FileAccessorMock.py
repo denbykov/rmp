@@ -13,3 +13,6 @@ class FileAccessorMock(IFileAccessor):
 
     def exists(self, path: pathlib.Path):
         pass
+
+    def apply_tag(self, data: bytes, tag: Tag):
+        pass

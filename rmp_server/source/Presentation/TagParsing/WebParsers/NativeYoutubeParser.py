@@ -17,6 +17,7 @@ BANNED_NAME_PHRASES_IN_PARENTHESES: List = [
 
 
 class NativeYoutubeParser:
+    # Todo: Create interface and use it instead in a Director
     def __init__(self):
         self.logger: logging.Logger = logging.getLogger(LoggerNames.PRESENTATION)
         self.name_cleaning_regex = self.construct_name_cleaning_regex(

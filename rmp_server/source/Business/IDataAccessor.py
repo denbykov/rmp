@@ -84,7 +84,7 @@ class IDataAccessor(ABC):
         pass
 
     @abstractmethod
-    def get_tags(self, tag_id: int) -> Tuple[DataError, List[Tag]]:
+    def get_tags(self, file_id: int) -> Tuple[DataError, List[Tag]]:
         pass
 
     @abstractmethod

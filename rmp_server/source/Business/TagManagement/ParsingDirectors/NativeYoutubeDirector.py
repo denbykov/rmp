@@ -9,7 +9,7 @@ import source.LoggerNames as LoggerNames
 from source.LogContext import *
 
 from source.Presentation.Formatters.URLFormatter import URLFormatter
-from source.Presentation.Parsers.URLParser import URLParser
+from source.Business.URLParser import URLParser
 from source.Presentation.TagParsing.WebParsers.NativeYoutubeParser import NativeYoutubeParser
 
 

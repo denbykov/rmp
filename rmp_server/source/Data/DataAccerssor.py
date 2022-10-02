@@ -75,8 +75,8 @@ class DataAccessor(IDataAccessor):
             native_tag_sources,
             self.con)
 
-    def get_tags(self, tag_id: int) -> Tuple[DataError, List[Tag]]:
-        return self.tag_repository.get_tags(tag_id, self.con)
+    def get_tags(self, file_id: int) -> Tuple[DataError, List[Tag]]:
+        return self.tag_repository.get_tags(file_id, self.con)
 
     def add_tag_mapping(self, mapping: TagMapping) \
             -> Tuple[DataError, TagMapping]:

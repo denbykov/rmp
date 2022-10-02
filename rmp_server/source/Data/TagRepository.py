@@ -223,7 +223,7 @@ class TagRepository:
 
     def get_tags(
             self,
-            tag_id: int,
+            file_id: int,
             con: sqlite3.Connection) -> Tuple[DataError, List[Tag]]:
         try:
             with con:
@@ -233,7 +233,7 @@ class TagRepository:
                     "inner join TagSource on TagSource.id=Tag.sourceId " \
                     "where Tag.fileId = (?)"
 
-                rows = con.execute(query, (tag_id,)).fetchall()
+                rows = con.execute(query, (file_id,)).fetchall()
 
                 if not rows:
                     return make_da_response(error=ErrorCodes.NO_SUCH_RESOURCE)

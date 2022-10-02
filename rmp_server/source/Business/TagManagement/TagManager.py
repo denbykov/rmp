@@ -4,7 +4,7 @@ from source.Business.Entities.DataError import *
 
 from .IParsingManager import *
 
-from source.Presentation.Parsers.URLParser import *
+from source.Business.URLParser import *
 
 import logging
 import source.LoggerNames as LoggerNames
@@ -200,7 +200,7 @@ class TagManager:
             tag.source.name.get_abbreviation())
         return Path(path)
 
-    def get_state(self, tag_id: int) -> Tuple[DataError, TagState]:
+    def get_state(self, tag_id: int) -> Tuple[DataError, Optional[TagState]]:
         progress: Optional[Tuple[ParsingProgress, Tag]] =\
             self.parsing_manager.get_progress(tag_id)
 
@@ -239,7 +239,8 @@ class TagManager:
 
             return error, state
 
-    def create_tag_mapping(self, file_id: int) -> Tuple[DataError, TagMapping]:
+    def create_tag_mapping(self, file_id: int) \
+            -> Tuple[DataError, Optional[TagMapping]]:
         error, tag = self.data_accessor.get_native_tag_for_file(
             file_id,
             self._form_native_tag_source_ids())
@@ -260,3 +261,40 @@ class TagManager:
             return error, None
 
         return error, mapping
+
+    def form_tag_for_file(self, file_id: int) \
+            -> Tuple[DataError, Optional[Tag]]:
+        error, mapping = self.data_accessor.get_tag_mapping_by_file(file_id)
+
+        if error:
+            return error, None
+
+        error, tags = self.data_accessor.get_tags(file_id)
+
+        if error:
+            return error, None
+
+        tag: Optional[Tag] = None
+
+        try:
+            tag = self._apply_tag_mapping(tags, mapping)
+        except KeyError as ex:
+            return DataError(True, ErrorCodes.NO_SUCH_RESOURCE), None
+
+        return error, tag
+
+    def _apply_tag_mapping(self, tags: List[Tag], mapping: TagMapping) \
+            -> Tag:
+        tag: Tag = Tag(None, None, None, None, None, None, None, None, None)
+
+        tags_dict: Dict[int, Tag] = dict()
+        for el in tags:
+            tags_dict[el.source.id] = el
+
+        tag.name = tags_dict[mapping.name.id].name
+        tag.artist = tags_dict[mapping.artist.id].artist
+        tag.lyrics = tags_dict[mapping.lyrics.id].lyrics
+        tag.year = tags_dict[mapping.year.id].year
+        tag.apic_path = tags_dict[mapping.apic.id].apic_path
+
+        return tag

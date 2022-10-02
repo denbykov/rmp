@@ -1,12 +1,11 @@
 import source.Business.TagManagement.TagManager as tm
-from source.Business.Entities.Tag.TagMapping import TagMapping
 
 from source.Business.IDataAccessor import *
 from source.Business.IFileAccessor import IFileAccessor
 
 from source.Business.Entities.APIError import *
 
-from source.Presentation.Parsers.URLParser import *
+from source.Business.URLParser import *
 
 
 class TagController:

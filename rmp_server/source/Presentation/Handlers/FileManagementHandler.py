@@ -35,8 +35,12 @@ class FileManagementHandler(AuthorizedHandler):
                 path = splitted_path[4]
                 if path == "state" and request.method == HTTPMethod.GET:
                     return self._get_file_state(file_id)
-                if path == "data" and request.method == HTTPMethod.GET:
-                    return self._get_file(file_id)
+                if path.startswith("data") and request.method == HTTPMethod.GET:
+                    apply_tags: bool = False
+                    opt = self._get_option(path, "applyTags")
+                    if opt and opt == "true":
+                        apply_tags = True
+                    return self._get_file(file_id, apply_tags)
             except IndexError:
                 pass
 
@@ -70,9 +74,9 @@ class FileManagementHandler(AuthorizedHandler):
 
         return HTTPResponse(HTTPResponseCode.OK, FileStateFormatter.format(result))
 
-    def _get_file(self, file_id: int)\
+    def _get_file(self, file_id: int, apply_tags: bool)\
             -> HTTPResponse:
-        result = self.controller.get_file(file_id)
+        result = self.controller.get_file(file_id, apply_tags)
 
         if isinstance(result, APIError):
             return self.handle_api_error(result)
@@ -94,3 +98,19 @@ class FileManagementHandler(AuthorizedHandler):
             return self.handle_api_error(result)
 
         return HTTPResponse(HTTPResponseCode.OK, FileFormatter.format(result))
+
+    def _get_option(self, path: str, option: str) -> Optional[str]:
+        #Todo: move it to the separate class
+        name_spos = path.find("?") + 1
+        name_epos = path.find("=")
+
+        if name_spos == -1 or name_epos == -1:
+            return None
+
+        if option != path[name_spos:name_epos]:
+            return None
+
+        value_spos = name_epos + 1
+        value_epos = len(path)
+
+        return path[value_spos:value_epos]

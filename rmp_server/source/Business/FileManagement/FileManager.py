@@ -1,5 +1,5 @@
 from source.Business.IDataAccessor import *
-from source.Presentation.Parsers.URLParser import *
+from source.Business.URLParser import *
 
 from .DownloadingManager import *
 
@@ -145,7 +145,7 @@ class FileManager:
         error, file = self.data_accessor.get_file(file_id)
 
         if error or file.state.name != FileStateName.READY:
-            return DataError(False, ErrorCodes.NO_SUCH_RESOURCE), None
+            return DataError(True, ErrorCodes.NO_SUCH_RESOURCE), None
 
         data = self.file_accessor.read_file(file.path)
 
