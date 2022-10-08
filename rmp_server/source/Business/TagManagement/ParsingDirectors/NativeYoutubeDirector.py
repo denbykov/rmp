@@ -70,11 +70,12 @@ class NativeYoutubeDirector(IParsingDirector):
         if code != 200:
             return False
 
-        self.parser.parse(tag, data)
+        result: TagParsingResult = self.parser.parse(tag, data)
+        tag = result.tag
 
-        apic = self._download_apic(data["thumbnail_url"])
+        apic = self._download_apic(result.apic_url)
         if apic:
-            ext: str = URLParser.parse_file_extension(data["thumbnail_url"])
+            ext: str = URLParser.parse_file_extension(result.apic_url)
             tag.apic_path = tag.apic_path.with_suffix(ext)
             self.file_accessor.write_file(tag.apic_path, apic)
 

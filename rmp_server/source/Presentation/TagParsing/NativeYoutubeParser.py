@@ -24,12 +24,19 @@ class NativeYoutubeParser(ITagParser):
         self.artist_cleaning_regex = self.construct_artist_cleaning_regex(
             BANNED_PHRASES)
 
-    def parse(self, tag: Tag, data: Dict):
+    def parse(self, tag: Tag, data: Dict) -> TagParsingResult:
         name, artist = \
             self.process_primary_tags(data["title"], data["author_name"])
 
         tag.name = name
         tag.artist = artist
+
+        apic_url: Optional[str] = self._parse_apic_url(data)
+
+        return TagParsingResult(tag, apic_url)
+
+    def _parse_apic_url(self, data: Dict):
+        return data["thumbnail_url"]
 
     def process_primary_tags(self, name: str, artist: str) -> Tuple[str, str]:
         processed_name: str = name
