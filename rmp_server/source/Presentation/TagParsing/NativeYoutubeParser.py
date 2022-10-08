@@ -1,5 +1,4 @@
-from source.Business.Entities.Tag import Tag
-from source.Business.IRequestAgent import *
+from source.Business.TagManagement.ITagParser import *
 
 import string
 import re
@@ -16,8 +15,7 @@ BANNED_NAME_PHRASES_IN_PARENTHESES: List = [
     "Official Music Video", "Unofficial Videoclip", "official video", ""]
 
 
-class NativeYoutubeParser:
-    # Todo: Create interface and use it instead in a Director
+class NativeYoutubeParser(ITagParser):
     def __init__(self):
         self.logger: logging.Logger = logging.getLogger(LoggerNames.PRESENTATION)
         self.name_cleaning_regex = self.construct_name_cleaning_regex(

@@ -8,6 +8,8 @@ import threading
 from typing import *
 
 
+# primary data could be a native url of file(str argument) \
+# or native tag if we are parsing non-native one
 class IParsingDirector(ABC):
     @abstractmethod
     def parse(

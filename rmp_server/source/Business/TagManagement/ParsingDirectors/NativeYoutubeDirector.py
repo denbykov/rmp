@@ -1,5 +1,6 @@
 from source.Business.IFileAccessor import IFileAccessor
 from source.Business.TagManagement.IParsingDirector import *
+from source.Business.TagManagement.ITagParser import *
 
 from source.Business.IRequestAgent import IRequestAgent
 
@@ -10,14 +11,17 @@ from source.LogContext import *
 
 from source.Presentation.Formatters.URLFormatter import URLFormatter
 from source.Business.URLParser import URLParser
-from source.Presentation.TagParsing.WebParsers.NativeYoutubeParser import NativeYoutubeParser
 
 
 class NativeYoutubeDirector(IParsingDirector):
-    def __init__(self, agent: IRequestAgent, file_accessor: IFileAccessor):
+    def __init__(
+            self,
+            agent: IRequestAgent,
+            file_accessor: IFileAccessor,
+            parser: ITagParser):
         self.request_agent: IRequestAgent = agent
         self.logger: logging.Logger = logging.getLogger(LoggerNames.BUSINESS)
-        self.parser: NativeYoutubeParser = NativeYoutubeParser()
+        self.parser: ITagParser = parser
         self.file_accessor: IFileAccessor = file_accessor
 
     def parse(
@@ -49,7 +53,7 @@ class NativeYoutubeDirector(IParsingDirector):
 
         return tag
 
-    def _download_apic(self, url: str) -> bytes:
+    def _download_apic(self, url: str) -> Optional[bytes]:
         code, data = self.request_agent.read_file(url)
 
         if code != 200:

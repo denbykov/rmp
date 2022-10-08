@@ -6,6 +6,7 @@ import logging.handlers
 
 from Core.HTTPHandlerAdapter import HTTPHandlerAdapter
 from Presentation.HTTPHandlerFactory import *
+from Presentation.TagParsing.TagParserFactory import *
 
 import source.Business.FileManagement.FileManager as fm
 import source.Business.TagManagement.TagManager as tm
@@ -59,7 +60,8 @@ class ServerApplication:
             ParsingDirectorFactory(
                 SeleniumBrowser(("--headless", "--disable-web-security")),
                 RequestAgent(),
-                FileAccessor()
+                FileAccessor(),
+                TagParserFactory()
             )
         )
 
