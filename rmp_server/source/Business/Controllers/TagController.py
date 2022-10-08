@@ -154,3 +154,10 @@ class TagController:
             return self._get_tag_mapping_error_response(error)
 
         return None
+
+    def get_tag_sources(self) -> Union[APIError, List[TagSource]]:
+        result: List[TagSource] = list()
+        mapping: Dict[TagSourceName, int] = self.tag_manager.db_sources_id_mapping
+        for el in mapping:
+            result.append(TagSource(mapping[el], el))
+        return result

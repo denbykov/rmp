@@ -62,6 +62,10 @@ class TagManagementHandler(AuthorizedHandler):
                 file_id = int(splitted_path[3])
                 return self._create_tag_mapping(file_id)
 
+        if path == "sources":
+            if request.method == HTTPMethod.GET:
+                return self._get_tag_sources()
+
         return self.handle_api_error(
             APIError(ErrorCodes.NO_SUCH_RESOURCE, "Not found"))
 
@@ -153,3 +157,13 @@ class TagManagementHandler(AuthorizedHandler):
             return self.handle_api_error(result)
 
         return HTTPResponse(HTTPResponseCode.OK, None)
+
+    def _get_tag_sources(self) -> HTTPResponse:
+        result = self.controller.get_tag_sources()
+
+        if isinstance(result, APIError):
+            return self.handle_api_error(result)
+
+        return HTTPResponse(
+            HTTPResponseCode.OK,
+            TagSourceFormatter.format_list(result))
