@@ -86,6 +86,8 @@ class TagController:
             return APIError(error.code, "Bad argument")
         if error.code == ErrorCodes.RESOURCE_ALREADY_EXISTS:
             return APIError(error.code, "Tag already exists")
+        if error.code == ErrorCodes.PREREQUISITES_ARENT_MET:
+            return APIError(error.code, "Prerequisites aren't met")
 
     @staticmethod
     def _get_tag_mapping_error_response(error: DataError) -> APIError:

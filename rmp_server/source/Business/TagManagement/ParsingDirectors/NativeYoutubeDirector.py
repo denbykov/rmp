@@ -76,7 +76,8 @@ class NativeYoutubeDirector(IParsingDirector):
         apic = self._download_apic(result.apic_url)
         if apic:
             ext: str = URLParser.parse_file_extension(result.apic_url)
-            tag.apic_path = tag.apic_path.with_suffix(ext)
+            suffix = tag.apic_path.suffix
+            tag.apic_path = tag.apic_path.with_suffix(suffix + ext)
             self.file_accessor.write_file(tag.apic_path, apic)
 
         return True

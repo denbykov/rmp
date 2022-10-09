@@ -6,6 +6,7 @@ from source.Business.Controllers.TagController import *
 from source.Presentation.Parsers.FileURLParser import FileURLParser
 from source.Presentation.Formatters.Tag.TagMappingFormatter import *
 from source.Presentation.Parsers.Tag.TagMappingParser import TagMappingParser
+from source.Presentation.Parsers.RequestURLParser import RequestURLParser
 
 
 class TagManagementHandler(AuthorizedHandler):
@@ -25,6 +26,12 @@ class TagManagementHandler(AuthorizedHandler):
         if path == "parse-native-tag" and request.method == HTTPMethod.POST:
             file_id = int(splitted_path[3])
             return self._parse_native_tag(file_id)
+
+        if path == "parse-tags" and request.method == HTTPMethod.POST:
+            params_start = splitted_path[3].find("?")
+            file_id = int(splitted_path[3][:params_start])
+            sources = RequestURLParser.get_option(splitted_path[3], "source")
+            return self._parse_tags(file_id, sources)
 
         if path == "find-by-file" and request.method == HTTPMethod.GET:
             file_id = int(splitted_path[3])
@@ -77,13 +84,20 @@ class TagManagementHandler(AuthorizedHandler):
 
         return HTTPResponse(HTTPResponseCode.OK, TagFormatter.format(result))
 
-    def _parse_tags(self, file_id: int, sources: str) -> HTTPResponse:
-        result = self.controller.pase_tags(file_id)
+    def _parse_tags(self, file_id: int, sources: List[str]) -> HTTPResponse:
+        if len(sources) < 0:
+            HTTPResponse(HTTPResponseCode.BAD_REQUEST, None)
+
+        processed_sources: List[TagSourceName] = list()
+        for el in sources:
+            processed_sources.append(TagSourceName(el))
+
+        result = self.controller.pase_tags(file_id, processed_sources)
 
         if isinstance(result, APIError):
             return self.handle_api_error(result)
 
-        return HTTPResponse(HTTPResponseCode.OK, TagFormatter.format(result))
+        return HTTPResponse(HTTPResponseCode.OK, TagFormatter.format_list(result))
 
     def _get_tag_state(self, tag_id: int) -> HTTPResponse:
         result = self.controller.get_tag_state(tag_id)

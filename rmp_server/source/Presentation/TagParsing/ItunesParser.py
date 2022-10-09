@@ -5,7 +5,7 @@ import source.LoggerNames as LoggerNames
 
 from source.LogContext import *
 
-from datetime import date
+from datetime import datetime
 
 
 class ItunesParser(ITagParser):
@@ -23,8 +23,11 @@ class ItunesParser(ITagParser):
         if collection_name.endswith('Single'):
             tag.artist = data['results'][0]['artistName']
             tag.name = data['results'][0]['trackName']
-            release_date: date = data['results'][0]['releaseDate']
-            tag.year = release_date.year
+            release_date: datetime = \
+                datetime.strptime(
+                    data['results'][0]['releaseDate'],
+                    '%Y-%m-%dT%H:%M:%SZ')
+            tag.year = int(release_date.year)
             apic_url = data['results'][0]['artworkUrl100']
         else:
             # result['album'] = collection_name
@@ -32,8 +35,11 @@ class ItunesParser(ITagParser):
             if data['results'][0]['trackName'].lower() == name.lower():
                 tag.name = data['results'][0]['trackName']
                 apic_url = data['results'][0]['artworkUrl100']
-                release_date: date = data['results'][0]['releaseDate']
-                tag.year = release_date.year
+                release_date: datetime = \
+                    datetime.strptime(
+                        data['results'][0]['releaseDate'],
+                        '%Y-%m-%dT%H:%M:%SZ')
+                tag.year = int(release_date.year)
                 # result['number'] = data['results'][0]['trackNumber']
 
         return TagParsingResult(tag, apic_url)

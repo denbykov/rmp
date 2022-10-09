@@ -141,6 +141,9 @@ class TagManager:
         if error:
             return error, tag
 
+        if native_tag.state.name != TagStateName.READY:
+            return DataError(True, ErrorCodes.PREREQUISITES_ARENT_MET), tag
+
         tag.source = TagSource(
             self.db_sources_id_mapping[tag_source], tag_source)
 
@@ -194,11 +197,16 @@ class TagManager:
             tag: Tag,
             native_tag_source: TagSource,
             native_apic_path: Path) -> Path:
-        path: str = str(native_apic_path)
-        path = path.replace(
+        suffix: str = str("".join(native_apic_path.suffixes))
+        suffix = suffix.replace(
             native_tag_source.name.get_abbreviation(),
             tag.source.name.get_abbreviation())
-        return Path(path)
+        path: Path = Path()
+        for el in native_apic_path.parts[0:-1]:
+            path /= el
+        path /= Path(native_apic_path.stem).stem
+        path = path.with_suffix(suffix)
+        return path
 
     def get_state(self, tag_id: int) -> Tuple[DataError, Optional[TagState]]:
         progress: Optional[Tuple[ParsingProgress, Tag]] =\

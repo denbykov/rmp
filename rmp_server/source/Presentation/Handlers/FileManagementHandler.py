@@ -38,8 +38,8 @@ class FileManagementHandler(AuthorizedHandler):
                     return self._get_file_state(file_id)
                 if path.startswith("data") and request.method == HTTPMethod.GET:
                     apply_tags: bool = False
-                    opt = RequestURLParser.get_option(path, "applyTags")
-                    if opt and opt == "true":
+                    values = RequestURLParser.get_option(path, "applyTags")
+                    if len(values) > 0 and RequestURLParser.option_to_bool(values[0]):
                         apply_tags = True
                     return self._get_file(file_id, apply_tags)
             except IndexError:

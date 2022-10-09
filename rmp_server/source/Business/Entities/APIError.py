@@ -9,6 +9,7 @@ class ErrorCodes(Enum):
     UNAUTHORIZED = 4
     UNEXPECTED_ARGUMENT = 5
     BAD_ARGUMENT = 6
+    PREREQUISITES_ARENT_MET = 7
 
 
 @dataclass

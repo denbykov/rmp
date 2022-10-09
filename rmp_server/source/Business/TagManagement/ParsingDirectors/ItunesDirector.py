@@ -64,7 +64,7 @@ class ItunesDirector(IParsingDirector):
         return data
 
     def _parse(self, tag: Tag, native_tag: Tag) -> bool:
-        code, data = self.request_agent.read_json(
+        code, data = self.request_agent.read_json_file(
             URLFormatter.format_itunes_music_search_url(
                 native_tag.artist,
                 native_tag.name))
