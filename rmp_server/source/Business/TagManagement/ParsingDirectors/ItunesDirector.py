@@ -13,7 +13,7 @@ from source.Business.URLFormatter import URLFormatter
 from source.Business.URLParser import URLParser
 
 
-class NativeYoutubeDirector(IParsingDirector):
+class ItunesDirector(IParsingDirector):
     def __init__(
             self,
             agent: IRequestAgent,
@@ -63,9 +63,11 @@ class NativeYoutubeDirector(IParsingDirector):
 
         return data
 
-    def _parse(self, tag: Tag, url: str) -> bool:
+    def _parse(self, tag: Tag, native_tag: Tag) -> bool:
         code, data = self.request_agent.read_json(
-            URLFormatter.format_yt_oembed_json_url(url))
+            URLFormatter.format_itunes_music_search_url(
+                native_tag.artist,
+                native_tag.name))
 
         if code != 200:
             return False

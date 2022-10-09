@@ -1,6 +1,6 @@
 from .IDownloader import *
 
-from source.Presentation.Formatters.URLFormatter import *
+from source.Business.URLFormatter import *
 
 import logging
 import source.LoggerNames as LoggerNames

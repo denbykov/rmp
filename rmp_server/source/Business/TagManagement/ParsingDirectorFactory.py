@@ -1,6 +1,7 @@
 from source.Business.IBrowser import IBrowser
 
 from .ParsingDirectors.NativeYoutubeDirector import *
+from .ParsingDirectors.ItunesDirector import *
 from .ITagParserFactory import *
 
 
@@ -21,6 +22,12 @@ class ParsingDirectorFactory:
 
         if source == TagSourceName.NATIVE_YT:
             return NativeYoutubeDirector(
+                self.request_agent,
+                self.file_accessor,
+                parser)
+
+        if source == TagSourceName.ITUNES:
+            return ItunesDirector(
                 self.request_agent,
                 self.file_accessor,
                 parser)

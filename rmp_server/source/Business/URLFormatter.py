@@ -2,6 +2,7 @@ from source.Business.Entities.File.FileSourceInfo import *
 
 
 class URLFormatter:
+    # Todo: Move it back to the presentation layer with access though the same factory
     @staticmethod
     def format(info: FileSourceInfo) -> str:
 
@@ -19,3 +20,11 @@ class URLFormatter:
         return \
             f"https://www.youtube.com/oembed?format=json&url=https%3A%2F%2F" \
             f"www.youtube.com%2Fwatch%3Fv%3D{uid}"
+
+    @staticmethod
+    def format_itunes_music_search_url(artist: str, title: str) -> str:
+        return \
+            f'https://itunes.apple.com/search?' \
+            f'term={"+".join(artist.split(" "))}+{"+".join(title.split(" "))}' \
+            f'&media=music' \
+            f'&limit=1'

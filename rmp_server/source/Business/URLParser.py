@@ -4,6 +4,7 @@ import re
 
 
 class URLParser:
+    # Todo: Move it back to the presentation layer with access though the same factory
     @staticmethod
     def parse(url: str) -> FileSourceInfo:
         url = url.replace("https://www.", "")

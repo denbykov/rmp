@@ -9,5 +9,9 @@ from source.Business.Entities.TagParsingResult import TagParsingResult
 
 class ITagParser(ABC):
     @abstractmethod
-    def parse(self, tag: Tag, data: Dict) -> TagParsingResult:
+    def parse(
+            self,
+            tag: Tag,
+            data: Dict,
+            name: Optional[str] = None) -> TagParsingResult:
         pass
