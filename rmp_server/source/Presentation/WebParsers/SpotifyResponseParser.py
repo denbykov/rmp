@@ -1,5 +1,6 @@
 from source.Business.Entities.Tag.Tag import Tag
 from source.Presentation.WebParsers.TagParsingResult import TagParsingResult
+from .NotEnoughDataException import NotEnoughDataException
 
 from typing import *
 
@@ -13,34 +14,58 @@ class SpotifyResponseParser:
     def __init__(self):
         self.logger: logging.Logger = logging.getLogger(LoggerNames.PRESENTATION)
 
-    def parse(
+    def parse_item(
+            self,
+            tag: Tag,
+            apic_url: str,
+            data: Dict):
+        tag.artist = data['album']['artists'][0]['name']
+        tag.name = data['name']
+        release_date_string = data['album']['release_date']
+
+        release_date: datetime = \
+            datetime.strptime(
+                release_date_string,
+                '%Y-%m-%dT%H:%M:%SZ')
+        tag.year = int(release_date.year)
+        apic_url = data['album']['images'][0]['url']
+
+        # try:
+        #     tag.number = data[0]['track_number']
+        # except KeyError:
+        #     pass
+
+    def parse_single_item(
             self,
             tag: Tag,
             data: Dict,
-            name: Optional[str] = None) -> TagParsingResult:
-        collection_name = data['results'][0]['collectionName']
+            name: str) -> TagParsingResult:
         apic_url = ""
 
-        if collection_name.endswith('Single'):
-            tag.artist = data['results'][0]['artistName']
-            tag.name = data['results'][0]['trackName']
-            release_date: datetime = \
-                datetime.strptime(
-                    data['results'][0]['releaseDate'],
-                    '%Y-%m-%dT%H:%M:%SZ')
-            tag.year = int(release_date.year)
-            apic_url = data['results'][0]['artworkUrl100']
-        else:
-            # result['album'] = collection_name
-            tag.artist = data['results'][0]['artistName']
-            if data['results'][0]['trackName'].lower() == name.lower():
-                tag.name = data['results'][0]['trackName']
-                apic_url = data['results'][0]['artworkUrl100']
-                release_date: datetime = \
-                    datetime.strptime(
-                        data['results'][0]['releaseDate'],
-                        '%Y-%m-%dT%H:%M:%SZ')
-                tag.year = int(release_date.year)
-                # result['number'] = data['results'][0]['trackNumber']
+        item: Dict = data['tracks']['items'][0]
+
+        if item['album']['album_type'] == 'album':
+            if name.lower() not in item['name'].lower():
+                raise NotEnoughDataException()
+
+        self.parse_item(tag, apic_url, item)
+
+        return TagParsingResult(tag, apic_url)
+
+    def parse_page(
+            self,
+            tag: Tag,
+            data: Dict,
+            name: str) -> TagParsingResult:
+        apic_url = ""
+
+        item: Optional[Dict] = None
+
+        for el in data['tracks']['items']:
+            if name.lower() in el['name'].lower():
+                item = el
+                break
+
+        self.parse_item(tag, apic_url, item)
 
         return TagParsingResult(tag, apic_url)

@@ -72,7 +72,7 @@ class ItunesWebParser(IWebParser):
             return False
 
         result: TagParsingResult = \
-            self.response_parser.parse(tag, data, name=native_tag.name)
+            self.response_parser.parse(tag, data, native_tag.name)
         tag = result.tag
 
         apic = self._download_apic(result.apic_url)

@@ -28,8 +28,7 @@ class NativeYoutubeResponseParser:
     def parse(
             self,
             tag: Tag,
-            data: Dict,
-            name: Optional[str] = None) -> TagParsingResult:
+            data: Dict) -> TagParsingResult:
         processed_name, processed_artist = \
             self.process_primary_tags(data["title"], data["author_name"])
 

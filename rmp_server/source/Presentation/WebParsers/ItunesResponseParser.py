@@ -17,7 +17,7 @@ class ItunesResponseParser:
             self,
             tag: Tag,
             data: Dict,
-            name: Optional[str] = None) -> TagParsingResult:
+            name: str) -> TagParsingResult:
         collection_name = data['results'][0]['collectionName']
         apic_url = ""
 
