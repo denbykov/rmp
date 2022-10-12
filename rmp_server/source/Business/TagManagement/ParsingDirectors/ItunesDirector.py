@@ -72,7 +72,7 @@ class ItunesDirector(IParsingDirector):
         if code != 200:
             return False
 
-        result: TagParsingResult = self.parser.parse(tag, data)
+        result: TagParsingResult = self.parser.parse(tag, data, name=native_tag.name)
         tag = result.tag
 
         apic = self._download_apic(result.apic_url)
