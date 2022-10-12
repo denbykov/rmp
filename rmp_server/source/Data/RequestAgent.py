@@ -20,7 +20,7 @@ class RequestAgent(IRequestAgent):
                        'Content-Type': 'application_json',
                        'Authorization': f'Bearer {token}'}
 
-            result = get(url, headers)
+            result = get(url, headers=headers)
         else:
             result = get(url)
         return result.status_code, result.json()
@@ -28,3 +28,14 @@ class RequestAgent(IRequestAgent):
     def read_file(self, url: str) -> Tuple[int, bytes]:
         result = get(url)
         return result.status_code, result.content
+
+    def post_and_read_json(
+            self,
+            url: str,
+            headers: Optional[Dict] = None,
+            data: Optional[Dict] = None) \
+            -> Tuple[int, Dict]:
+        result = post(url,
+                 headers=headers,
+                 data=data)
+        return result.status_code, result.json()

@@ -26,14 +26,18 @@ class SpotifyResponseParser:
         release_date: datetime = \
             datetime.strptime(
                 release_date_string,
-                '%Y-%m-%dT%H:%M:%SZ')
+                '%Y-%m-%d')
         tag.year = int(release_date.year)
-        apic_url = data['album']['images'][0]['url']
 
         # try:
         #     tag.number = data[0]['track_number']
         # except KeyError:
         #     pass
+
+    def parse_apic_url(
+            self,
+            data: Dict) -> str:
+        return data['album']['images'][0]['url']
 
     def parse_single_item(
             self,
@@ -49,6 +53,7 @@ class SpotifyResponseParser:
                 raise NotEnoughDataException()
 
         self.parse_item(tag, apic_url, item)
+        apic_url = self.parse_apic_url(item)
 
         return TagParsingResult(tag, apic_url)
 
@@ -67,5 +72,6 @@ class SpotifyResponseParser:
                 break
 
         self.parse_item(tag, apic_url, item)
+        apic_url = self.parse_apic_url(item)
 
         return TagParsingResult(tag, apic_url)

@@ -14,3 +14,11 @@ class IRequestAgent(ABC):
 
     def read_file(self, url: str) -> Tuple[int, bytes]:
         pass
+
+    def post_and_read_json(
+            self,
+            url: str,
+            headers: Optional[Dict] = None,
+            data: Optional[Dict] = None) \
+            -> Tuple[int, Dict]:
+        pass

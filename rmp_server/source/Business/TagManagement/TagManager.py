@@ -87,6 +87,7 @@ class TagManager:
             if tag.source.name in (TagSourceName.NATIVE_YT,):
                 self._restore_native_tag_parsing(tag)
             else:
+                # ToDo: implement tag parsing restoration
                 pass
 
         self.logger.info(f"{len(tags)} tags restored for parsing")

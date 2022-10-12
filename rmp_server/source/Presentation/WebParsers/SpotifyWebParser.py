@@ -13,6 +13,8 @@ from source.LogContext import *
 from source.Business.URLFormatter import URLFormatter
 from source.Business.URLParser import URLParser
 
+import magic
+
 
 class SpotifyWebParser(IWebParser):
     def __init__(
@@ -88,7 +90,8 @@ class SpotifyWebParser(IWebParser):
 
         apic = self._download_apic(result.apic_url)
         if apic:
-            ext: str = URLParser.parse_file_extension(result.apic_url)
+            mime: str = magic.from_buffer(apic, mime=True)
+            ext: str = "." + mime.split("/")[-1]
             tag.apic_path = tag.apic_path.with_suffix(ext)
             self.file_accessor.write_file(tag.apic_path, apic)
 

@@ -1,3 +1,4 @@
+import base64
 import configparser
 from http.server import ThreadingHTTPServer
 
@@ -44,7 +45,8 @@ class Config:
 
     FILE_DIR: str = "file_dir"
 
-SPOTIFY_API_TOKEN: str = "SPOTIFY_API_TOKEN"
+SPOTIFY_UID: str = "SPOTIFY_UID"
+SPOTIFY_SECRET: str = "SPOTIFY_SECRET"
 
 
 class ServerApplication:
@@ -61,12 +63,14 @@ class ServerApplication:
             FileAccessor(),
             Path(self.config.get(Config.FILE_MANAGEMENT, Config.FILE_DIR)))
 
+        request_agent: IRequestAgent = RequestAgent()
+
         parsing_manager: pm.ParsingManager = pm.ParsingManager(
             WebParserFactory(
                 SeleniumBrowser(("--headless", "--disable-web-security")),
-                RequestAgent(),
+                request_agent,
                 FileAccessor(),
-                os.getenv(SPOTIFY_API_TOKEN)
+                self._request_spotify_access_token(request_agent)
             )
         )
 
@@ -76,6 +80,23 @@ class ServerApplication:
             FileAccessor(),
             Path(self.config.get(Config.FILE_MANAGEMENT, Config.FILE_DIR))
         )
+
+    def _request_spotify_access_token(self, request_agent: IRequestAgent) -> str:
+        request_data: str = \
+            base64.b64encode(
+                f"{os.getenv(SPOTIFY_UID)}:{os.getenv(SPOTIFY_SECRET)}".encode()
+            ).decode()
+
+        status_code, data = request_agent.post_and_read_json(
+            'https://accounts.spotify.com/api/token',
+            headers={'Authorization': f'Basic {request_data}'},
+            data={'grant_type': 'client_credentials'}
+        )
+        if status_code != 200:
+            raise RuntimeError("Failed to obtain spotify access token")
+
+        token = data['access_token']
+        return token
 
     def _init_logging(self):
         if not LOG_DIR_LOCATION.is_dir():
