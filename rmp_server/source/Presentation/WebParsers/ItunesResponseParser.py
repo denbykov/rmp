@@ -1,14 +1,15 @@
-from source.Business.TagManagement.ITagParser import *
-
 import logging
-import source.LoggerNames as LoggerNames
 
-from source.LogContext import *
+import source.LoggerNames as LoggerNames
+from source.Business.Entities.Tag.Tag import Tag
+from source.Presentation.WebParsers.TagParsingResult import TagParsingResult
+
+from typing import *
 
 from datetime import datetime
 
 
-class ItunesParser(ITagParser):
+class ItunesResponseParser:
     def __init__(self):
         self.logger: logging.Logger = logging.getLogger(LoggerNames.PRESENTATION)
 

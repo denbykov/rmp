@@ -1,12 +1,12 @@
 from abc import ABC, abstractmethod
 
 from source.Business.Entities.Tag.TagSource import *
-from .ITagParser import ITagParser
+from .IWebParser import IWebParser
 
 from typing import *
 
 
-class ITagParserFactory(ABC):
+class IWebParserFactory(ABC):
     @abstractmethod
-    def create(self, source: TagSourceName) -> ITagParser:
+    def create(self, source: TagSourceName) -> IWebParser:
         pass

@@ -1,12 +1,13 @@
-from source.Business.TagManagement.ITagParser import *
+from source.Business.Entities.Tag.Tag import Tag
+from source.Presentation.WebParsers.TagParsingResult import TagParsingResult
+
+from typing import *
 
 import string
 import re
 
 import logging
 import source.LoggerNames as LoggerNames
-
-from source.LogContext import *
 
 BANNED_PHRASES: List = [
     " - Topic"]
@@ -15,7 +16,7 @@ BANNED_NAME_PHRASES_IN_PARENTHESES: List = [
     "Official Music Video", "Unofficial Videoclip", "official video", ""]
 
 
-class NativeYoutubeParser(ITagParser):
+class NativeYoutubeResponseParser:
     def __init__(self):
         self.logger: logging.Logger = logging.getLogger(LoggerNames.PRESENTATION)
         self.name_cleaning_regex = self.construct_name_cleaning_regex(

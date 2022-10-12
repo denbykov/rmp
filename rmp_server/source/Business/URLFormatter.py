@@ -28,3 +28,15 @@ class URLFormatter:
             f'term={"+".join(artist.split(" "))}+{"+".join(title.split(" "))}' \
             f'&media=music' \
             f'&limit=1'
+
+    @staticmethod
+    def format_spotify_music_search_url(
+            artist: str,
+            title: str,
+            limit: int) -> str:
+        return \
+            f'https://api.spotify.com/v1/search?q=artist%3A' \
+            f'{artist.replace(" ", "%20")}' \
+            f'%20track%3A{title.replace(" ", "%20")}' \
+            f'&type=track' \
+            f'&limit={limit}'

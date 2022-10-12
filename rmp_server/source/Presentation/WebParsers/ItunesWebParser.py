@@ -1,6 +1,6 @@
 from source.Business.IFileAccessor import IFileAccessor
-from source.Business.TagManagement.IParsingDirector import *
-from source.Business.TagManagement.ITagParser import *
+from source.Business.TagManagement.IWebParser import *
+from .ItunesResponseParser import *
 
 from source.Business.IRequestAgent import IRequestAgent
 
@@ -13,15 +13,14 @@ from source.Business.URLFormatter import URLFormatter
 from source.Business.URLParser import URLParser
 
 
-class ItunesDirector(IParsingDirector):
+class ItunesWebParser(IWebParser):
     def __init__(
             self,
             agent: IRequestAgent,
-            file_accessor: IFileAccessor,
-            parser: ITagParser):
+            file_accessor: IFileAccessor):
         self.request_agent: IRequestAgent = agent
         self.logger: logging.Logger = logging.getLogger(LoggerNames.BUSINESS)
-        self.parser: ITagParser = parser
+        self.response_parser: ItunesResponseParser = ItunesResponseParser()
         self.file_accessor: IFileAccessor = file_accessor
 
     def parse(
@@ -72,7 +71,8 @@ class ItunesDirector(IParsingDirector):
         if code != 200:
             return False
 
-        result: TagParsingResult = self.parser.parse(tag, data, name=native_tag.name)
+        result: TagParsingResult = \
+            self.response_parser.parse(tag, data, name=native_tag.name)
         tag = result.tag
 
         apic = self._download_apic(result.apic_url)

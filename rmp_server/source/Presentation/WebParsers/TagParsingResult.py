@@ -1,6 +1,6 @@
 from typing import Optional
 
-from .Tag.Tag import *
+from source.Business.Entities.Tag.Tag import *
 
 from dataclasses import dataclass
 

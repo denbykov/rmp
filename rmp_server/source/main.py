@@ -6,7 +6,6 @@ import logging.handlers
 
 from Core.HTTPHandlerAdapter import HTTPHandlerAdapter
 from Presentation.HTTPHandlerFactory import *
-from Presentation.TagParsing.TagParserFactory import *
 
 import source.Business.FileManagement.FileManager as fm
 import source.Business.TagManagement.TagManager as tm
@@ -16,12 +15,14 @@ from source.Data.SeleniumBrowser import *
 from source.Data.RequestAgent import *
 from source.Data.FileAccessor import *
 
-from source.Business.TagManagement.ParsingDirectorFactory import *
-
 import LoggerNames
 import sqlite3
 
+import os
+
 from pathlib import Path
+
+from source.Presentation.WebParsers.WebParserFactory import WebParserFactory
 
 APP_CONFIG_LOCATION = Path("config/rmp_server-config.ini")
 LOGGER_CONFIG_LOCATION = Path("config/rmp_server-logging.ini")
@@ -43,10 +44,14 @@ class Config:
 
     FILE_DIR: str = "file_dir"
 
+SPOTIFY_API_TOKEN: str = "SPOTIFY_API_TOKEN"
+
 
 class ServerApplication:
     def __init__(self):
-        self.config = configparser.ConfigParser(interpolation=configparser.ExtendedInterpolation())
+        self.config = \
+            configparser.ConfigParser(
+                interpolation=configparser.ExtendedInterpolation())
         self.config.read(APP_CONFIG_LOCATION)
         self.port = self.config.getint(Config.CORE, Config.PORT)
         self._init_logging()
@@ -57,11 +62,11 @@ class ServerApplication:
             Path(self.config.get(Config.FILE_MANAGEMENT, Config.FILE_DIR)))
 
         parsing_manager: pm.ParsingManager = pm.ParsingManager(
-            ParsingDirectorFactory(
+            WebParserFactory(
                 SeleniumBrowser(("--headless", "--disable-web-security")),
                 RequestAgent(),
                 FileAccessor(),
-                TagParserFactory()
+                os.getenv(SPOTIFY_API_TOKEN)
             )
         )
 
