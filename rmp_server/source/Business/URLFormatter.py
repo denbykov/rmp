@@ -27,7 +27,14 @@ class URLFormatter:
             f'https://itunes.apple.com/search?' \
             f'term={"+".join(artist.split(" "))}+{"+".join(title.split(" "))}' \
             f'&media=music' \
-            f'&limit=1'
+            f'&limit=1'\
+
+    @staticmethod
+    def format_google_search_url(artist: str, title: str) -> str:
+        return \
+            f'https://www.google.com/search?q=?' \
+            f'{"+".join(artist.split(" "))}+{"+".join(title.split(" "))}' \
+            f'&lr=lang_en'
 
     @staticmethod
     def format_spotify_music_search_url(

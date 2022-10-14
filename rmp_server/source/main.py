@@ -67,7 +67,10 @@ class ServerApplication:
 
         parsing_manager: pm.ParsingManager = pm.ParsingManager(
             WebParserFactory(
-                SeleniumBrowser(("--headless", "--disable-web-security")),
+                SeleniumBrowser((
+                    "--headless",
+                    "--disable-web-security",
+                    "--lang=en-GB")),
                 request_agent,
                 FileAccessor(),
                 self._request_spotify_access_token(request_agent)

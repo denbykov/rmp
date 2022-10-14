@@ -7,7 +7,7 @@ class TagSourceName(Enum):
     NATIVE_YT = "native-yt"
     SPOTIFY = "spotify"
     ITUNES = "itunes"
-    CELERIS_GOOGLE_SEARCH = "celeris-google-search"
+    SELENIUM_GOOGLE_SEARCH = "selenium-google-search"
 
     def get_abbreviation(self) -> str:
         if self.value == self.NATIVE_YT.value:
@@ -16,8 +16,8 @@ class TagSourceName(Enum):
             return "st"
         if self.value == self.ITUNES.value:
             return "it"
-        if self.value == self.CELERIS_GOOGLE_SEARCH.value:
-            return "cgs"
+        if self.value == self.SELENIUM_GOOGLE_SEARCH.value:
+            return "sgs"
 
 
 @dataclass

@@ -6,6 +6,7 @@ from source.Business.IFileAccessor import *
 from .NativeYoutubeWebParser import *
 from .ItunesWebParser import *
 from .SpotifyWebParser import *
+from .SeleniumGoogleSearchWebParser import *
 
 
 class WebParserFactory(IWebParserFactory):
@@ -38,6 +39,12 @@ class WebParserFactory(IWebParserFactory):
                 self.request_agent,
                 self.file_accessor,
                 self.spotify_api_token
+            )
+
+        if source == TagSourceName.SELENIUM_GOOGLE_SEARCH:
+            return SeleniumGoogleSearchWebParser(
+                self.browser,
+                self.file_accessor
             )
 
         raise RuntimeError(f"Failed to create parser for {source}")

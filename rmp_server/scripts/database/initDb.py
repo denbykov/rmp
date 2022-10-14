@@ -73,7 +73,7 @@ print("filling table TagSource", end=": ")
 try:
     cur.execute(
         '''insert into TagSource(name)
-           values ("native-yt"), ("spotify"), ("itunes"), ("celeris-google-search")''')
+           values ("native-yt"), ("spotify"), ("itunes"), ("selenium-google-search")''')
 
     con.commit()
     print("Done")
