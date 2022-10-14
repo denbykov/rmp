@@ -87,7 +87,7 @@ class TagManager:
             if tag.source.name in (TagSourceName.NATIVE_YT,):
                 self._restore_native_tag_parsing(tag)
             else:
-                # ToDo: implement tag parsing restoration
+                self._restore_tag_parsing(tag)
                 pass
 
         self.logger.info(f"{len(tags)} tags restored for parsing")
@@ -100,6 +100,15 @@ class TagManager:
         uid: str = URLParser.parse(file.url).uid
 
         self._enqueue_native_tag_parsing(tag, uid)
+
+    def _restore_tag_parsing(self, tag: Tag):
+        error, native_tag = self.data_accessor.get_native_tag_for_file(
+            tag.file_id,
+            self._form_native_tag_source_ids())
+        if error:
+            raise RuntimeError(f"Failed to read file with id: {tag.file_id}")
+
+        self._enqueue_parsing(tag, native_tag)
 
     def _enqueue_parsing(self, tag: Tag, native_tag: Tag) -> None:
         self.parsing_manager.enqueue_tag(tag, native_tag)
