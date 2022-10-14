@@ -62,9 +62,15 @@ class TagController:
             error, tag = self.tag_manager.parse_tag(tag, el)
 
             if error:
-                return self._get_error_response(error)
+                if error.code == ErrorCodes.RESOURCE_ALREADY_EXISTS:
+                    continue
+                else:
+                    return self._get_error_response(error)
 
             tags.append(tag)
+
+        if len(tags) == 0:
+            return APIError(ErrorCodes.RESOURCE_ALREADY_EXISTS, "Tag already exists")
 
         return tags
 
